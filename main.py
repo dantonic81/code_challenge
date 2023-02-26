@@ -66,8 +66,9 @@ def create_map_arr(map_str):
     map_list = list(filter(None, map_list))
 
     # Find the dimensions of the map
-    # num_rows = len(map_list)
+    num_rows = len(map_list)
     num_cols = max(len(row) for row in map_list)
+    # print(num_rows, num_cols)
 
     # pad rows with spaces if jagged
     for index, i in enumerate(map_list):
@@ -115,13 +116,16 @@ def traverse_map(map_arr):
     visited = set()
     stack = [start_pos]
     last_direction = None
+    letters = []
+    path = []
 
     while stack:
         pos = stack.pop()
         if pos in visited:
             continue
         visited.add(pos)
-        # todo even though we sholdnt go back to visited, we should still move over it in case of just passing thru
+        path.append(map_arr[pos[0]][pos[1]])
+        # todo even though we shouldnt go back to visited, we should still move over it in case of just passing thru
         directions = explore_directions(map_arr, pos)
         # todo if only true directions are those that have been visited already, set the append the one conforming to last direction to stack and continue
         # run_through_directions = {k: v for (k, v) in directions.items() if v['can_move'] and k == last_direction}
@@ -140,7 +144,7 @@ def traverse_map(map_arr):
         if num_directions == 0:
             if map_arr[pos[0]][pos[1]] not in ['x', ' ', '|']:
                 raise ValueError('Broken path!')
-            return "Congratulations! You've reached the end of the map!"
+            return f'Congratulations! You\'ve reached the end of the map!\n {visited} \n {"".join(path)}'
         elif num_directions == 1:
             for direction, status in unvisited_directions.items():
                 if status['can_move']:
@@ -160,7 +164,7 @@ def traverse_map(map_arr):
         #         if status['can_move']:
         #             next_pos = move(map_arr, pos, direction)
         #             stack.append(next_pos)
-    return visited
+    return "".join(path)
 
 
 def explore_directions(arr, pos):
@@ -192,6 +196,6 @@ def explore_directions(arr, pos):
     return valid_movement
 
 
-print(traverse_map(create_map_arr(test2)))
+print(traverse_map(create_map_arr(test)))
 # print(traverse_map(create_map_arr(multiple_starting_paths)))
 
