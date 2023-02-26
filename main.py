@@ -7,7 +7,7 @@ test = """
       +---+
 """
 
-# straight thru intercetions
+# straight through intersections
 test2 = """
   @
   | +-C--+
@@ -17,6 +17,7 @@ test2 = """
     |      |
     +---D--+
 """
+## @|A+---B--+|+--C-+|-||+---D--+|x
 
 fork_in_path = """
         x-B
@@ -65,9 +66,8 @@ def create_map_arr(map_str):
     map_list = list(filter(None, map_list))
 
     # Find the dimensions of the map
-    num_rows = len(map_list)
+    # num_rows = len(map_list)
     num_cols = max(len(row) for row in map_list)
-    # print(num_rows, num_cols)
 
     # pad rows with spaces if jagged
     for index, i in enumerate(map_list):
@@ -100,8 +100,8 @@ def move(arr, pos, direction):
         next_pos = (x-1, y)
     elif direction == 'down':
         next_pos = (x+1, y)
-    else:
-        raise ValueError(f"Invalid direction: {direction}")
+    # else:
+    #     raise ValueError(f"Invalid direction: {direction}")
     next_char = arr[next_pos[0]][next_pos[1]]
     if next_char in {'-', '|', '+', 'x'} | upper_alpha:
         return next_pos
@@ -111,17 +111,26 @@ def move(arr, pos, direction):
 
 
 def traverse_map(map_arr):
-    # todo keep track of visited coordinates so we don't go back
     start_pos = find_start(map_arr)
-    # where can we move
     visited = set()
     stack = [start_pos]
+    last_direction = None
+
     while stack:
         pos = stack.pop()
         if pos in visited:
             continue
         visited.add(pos)
+        # todo even though we sholdnt go back to visited, we should still move over it in case of just passing thru
         directions = explore_directions(map_arr, pos)
+        # todo if only true directions are those that have been visited already, set the append the one conforming to last direction to stack and continue
+        # run_through_directions = {k: v for (k, v) in directions.items() if v['can_move'] and k == last_direction}
+        # run_through_position = {direction: status.get('position') for direction, status in run_through_directions}.get(last_direction)
+        # if run_through_position in visited:
+        #     stack.append(run_through_position)
+        #     continue
+
+
         # filter out already visited valid movements
         unvisited_directions = {k: v for (k, v) in directions.items() if v['position'] not in visited}
         num_directions = sum([direction['can_move'] for direction in unvisited_directions.values() if direction['can_move']])
@@ -129,7 +138,7 @@ def traverse_map(map_arr):
         # if num_directions > 1 and pos != start_pos:
         #     raise ValueError('Fork in path!')
         if num_directions == 0:
-            if map_arr[pos[0]][pos[1]] != 'x':
+            if map_arr[pos[0]][pos[1]] not in ['x', ' ', '|']:
                 raise ValueError('Broken path!')
             return "Congratulations! You've reached the end of the map!"
         elif num_directions == 1:
@@ -137,11 +146,20 @@ def traverse_map(map_arr):
                 if status['can_move']:
                     next_pos = move(map_arr, pos, direction)
                     stack.append(next_pos)
-        elif num_directions > 1 and pos == start_pos:
-            for direction, can_move in unvisited_directions.items():
-                if can_move:
+                    last_direction = direction
+        # contains intersection logic
+        elif num_directions > 1:
+            for direction, status in unvisited_directions.items():
+                if status['can_move'] and direction == last_direction:
                     next_pos = move(map_arr, pos, direction)
                     stack.append(next_pos)
+                    last_direction = direction
+
+        # elif num_directions > 1 and pos == start_pos:
+        #     for direction, status in unvisited_directions.items():
+        #         if status['can_move']:
+        #             next_pos = move(map_arr, pos, direction)
+        #             stack.append(next_pos)
     return visited
 
 
@@ -167,7 +185,7 @@ def explore_directions(arr, pos):
         valid_movement['up']['position'] = (x-1, y)
 
     # down - guardian pattern in condition, TODO check for edge cases later
-    if x < len(arr) - 1 and arr[x+1][y] in {'|', 'x', '+'} | upper_alpha:
+    if x < len(arr) - 1 and arr[x+1][y] in {'|', 'x', '+', '-'} | upper_alpha:
         valid_movement['down']['can_move'] = True
         valid_movement['down']['position'] = (x+1, y)
 
