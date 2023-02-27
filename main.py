@@ -124,7 +124,11 @@ def traverse_map(map_arr):
         if pos in visited:
             continue
         visited.add(pos)
-        path.append(map_arr[pos[0]][pos[1]])
+        x, y = pos
+        current_pos = map_arr[x][y]
+        path.append(current_pos)
+        if current_pos in upper_alpha and current_pos not in letters:
+            letters.append(current_pos)
         # todo even though we shouldnt go back to visited, we should still move over it in case of just passing thru
         directions = explore_directions(map_arr, pos)
         # todo if only true directions are those that have been visited already, set the append the one conforming to last direction to stack and continue
@@ -144,7 +148,7 @@ def traverse_map(map_arr):
         if num_directions == 0:
             if map_arr[pos[0]][pos[1]] not in ['x', ' ', '|']:
                 raise ValueError('Broken path!')
-            return f'Congratulations! You\'ve reached the end of the map!\n {visited} \n {"".join(path)}'
+            return f'Congratulations! You\'ve reached the end of the map!\n {visited} \n {"".join(letters)} \n {"".join(path)}'
         elif num_directions == 1:
             for direction, status in unvisited_directions.items():
                 if status['can_move']:
