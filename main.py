@@ -24,7 +24,6 @@ letters_turns = """
       +---C
 """
 
-# no twice collect   ------------------------------------------------------------
 no_twice_collect = """
      +-O-N-+
      |     |
@@ -35,9 +34,6 @@ no_twice_collect = """
              |
              x
 """
-# expected  GOONIES    actual: GONIES
-# expected  @-G-O-+|+-+|O||+-O-N-+|I|+-+|+-I-+|ES|x
-#           @-G-O-+|+-+|O||+-O-N-+|I|+-+|+-I-+|ES|x
 
 
 # compact_space    -------------------------------------------------------------
@@ -203,7 +199,7 @@ def traverse_map(map_arr):
     visited = set()
     stack = [start_pos]
     last_direction = None
-    # current_pos = None
+    locations_picked = []
     # last_pos = None
     letters = []
     path = []
@@ -220,8 +216,9 @@ def traverse_map(map_arr):
         if current_pos == 'x':
             return "".join(letters), "".join(path)
 
-        if current_pos in upper_alpha and current_pos not in letters:
+        if current_pos in upper_alpha and pos not in locations_picked:
             letters.append(current_pos)
+            locations_picked.append(pos)
         directions = explore_directions(map_arr, pos)
 
         if last_direction and directions[last_direction]['position'] in visited and directions[last_direction][

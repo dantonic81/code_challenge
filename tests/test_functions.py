@@ -173,7 +173,7 @@ def test_letters_turns():
 
 def test_no_twice_collect():
     result_no_twice_collect = traverse_map(create_map_arr(no_twice_collect))
-    assert result_no_twice_collect == 1
+    assert result_no_twice_collect == ('GOONIES', '@-G-O-+|+-+|O||+-O-N-+|I|+-+|+-I-+|ES|x')
 
 
 def test_compact_space():
