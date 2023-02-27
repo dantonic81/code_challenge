@@ -116,7 +116,7 @@ multiple_starts3 = """
       @
 """
 
-# fork_in_path     -------------------------------------------------------------------------------
+# fork_in_path     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 fork_in_path = """     
         x-B
           |
@@ -144,7 +144,7 @@ multiple_starting_paths = """
 """
 # actual:  @
 
-# fake turn   ------------------------------------------------------------------------------
+# fake turn   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 fake_turn = """
   @-A-+-B-x
 """
@@ -231,6 +231,8 @@ def traverse_map(map_arr):
     visited = set()
     stack = [start_pos]
     last_direction = None
+    current_pos = None
+    last_pos = None
     letters = []
     path = []
 
@@ -240,6 +242,7 @@ def traverse_map(map_arr):
             continue
         visited.add(pos)
         x, y = pos
+        last_pos = current_pos
         current_pos = map_arr[x][y]
         path.append(current_pos)
         if current_pos == 'x':
@@ -274,9 +277,13 @@ def traverse_map(map_arr):
                 if status['can_move']:
                     next_pos = move(map_arr, pos, direction)
                     stack.append(next_pos)
+                    if last_pos == '+' and direction == last_direction:
+                        raise ValueError('Fake turn!')
                     last_direction = direction
         # contains intersection logic
         elif num_directions > 1:
+            if current_pos == '+':
+                raise ValueError('Fork in path!')
             if current_pos == '@':
                 raise ValueError('Multiple starting paths!')
             for direction, status in unvisited_directions.items():
@@ -322,24 +329,28 @@ def explore_directions(arr, pos):
     return valid_movement
 
 
-print(traverse_map(create_map_arr(fake_turn)))
+print(traverse_map(create_map_arr(fork_in_path)))
 # print(traverse_map(create_map_arr(multiple_starting_paths)))
 
 
-# ----regression
+# ----valid maps
+
 # basic                   +
 # intersections
 # letters_turns           +
 # no_twice_collect
 # compact_space
 # ignore_after_end        +
+
+# ---- invalid maps
+
 # missing_start           +
 # missing_end             +
 # multiple_starts1        +
 # multiple_starts2        +
 # multiple_starts3        +
-# fork_in_path
+# fork_in_path            +
 # broken_path             +
 # multiple_starting_paths +
-# fake_turn
+# fake_turn               +
 
