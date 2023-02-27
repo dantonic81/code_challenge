@@ -6,7 +6,6 @@ basic = """
       +---+
 """
 
-# straight through intersections  ----------------------------------------------------------------
 intersections = """
   @
   | +-C--+
@@ -16,11 +15,6 @@ intersections = """
     |      |
     +---D--+
 """
-# expected ABCD  actual: abc
-# expected  @|A+---B--+|+--C-+|-||+---D--+|x actual: @|A+---B--+|+--C-+|
-# probably the toughest issue on which at least two other tasks depend
-# if its not an intersection, we should just continue movement
-
 
 letters_turns = """
   @---A---+
@@ -41,9 +35,9 @@ no_twice_collect = """
              |
              x
 """
-# expected  GOONIES    actual: GO
-# expected  @-G-O-+|+-+|O||+-O-N-+|I|+-+|+-I-+|ES|x   actual: @-G-O-+|+-+|
-# looks like waiting for intersections to be resolved
+# expected  GOONIES    actual: GONIES
+# expected  @-G-O-+|+-+|O||+-O-N-+|I|+-+|+-I-+|ES|x
+#           @-G-O-+|+-+|O||+-O-N-+|I|+-+|+-I-+|ES|x
 
 
 # compact_space    -------------------------------------------------------------
@@ -230,6 +224,12 @@ def traverse_map(map_arr):
             letters.append(current_pos)
         directions = explore_directions(map_arr, pos)
 
+        if last_direction and directions[last_direction]['position'] in visited and directions[last_direction][
+            'can_move']:
+            visited.remove(directions[last_direction]['position'])
+            stack.append(directions[last_direction]['position'])
+            continue
+
         unvisited_directions = {k: v for (k, v) in directions.items() if v['position'] not in visited}
         num_directions = sum(
             [direction['can_move'] for direction in unvisited_directions.values() if direction['can_move']])
@@ -286,7 +286,7 @@ def explore_directions(arr, pos):
     return valid_movement
 
 
-print(traverse_map(create_map_arr(intersections)))
+print(traverse_map(create_map_arr(no_twice_collect)))
 # print(traverse_map(create_map_arr(multiple_starting_paths)))
 # print(create_map_arr(broken_path))
 
@@ -294,7 +294,7 @@ print(traverse_map(create_map_arr(intersections)))
 # ----valid maps
 
 # basic                   +
-# intersections
+# intersections           +
 # letters_turns           +
 # no_twice_collect
 # compact_space

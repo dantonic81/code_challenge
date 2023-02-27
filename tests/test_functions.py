@@ -163,7 +163,7 @@ def test_basic():
 
 def test_intersections():
     result_intersections = traverse_map((create_map_arr(intersections)))
-    assert result_intersections == 1
+    assert result_intersections == ('ABCD', '@|A+---B--+|+--C-+|-||+---D--+|x')
 
 
 def test_letters_turns():
