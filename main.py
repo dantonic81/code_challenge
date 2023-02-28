@@ -1,6 +1,6 @@
 import collections
 import string
-from typing import List, Tuple, Set
+from typing import Dict, List, Tuple, Set
 
 
 UPPER_ALPHA = set(string.ascii_uppercase)
@@ -50,14 +50,15 @@ def create_map_arr(map_str) -> List[List[str]]:
 
 
 # TRAVERSE MAP LOGIC
-def _find_start(arr):
+def _find_start(arr: List[List[str]]) -> Tuple[int, int]:
     for x, row in enumerate(arr):
         for y, char in enumerate(row):
             if char == '@':
                 return x, y
+    raise ValueError('Start position not found!')
 
 
-def _move(arr, pos, direction):
+def _move(arr: List[List[str]], pos: Tuple[int, int], direction: str) -> Tuple[int, int]:
     x, y = pos
     if direction == 'left':
         next_pos = (x, y - 1)
@@ -75,7 +76,7 @@ def _move(arr, pos, direction):
         raise ValueError(f'Invalid move to position {next_pos}')
 
 
-def _explore_directions(arr, pos):
+def _explore_directions(arr: List[List[str]], pos: Tuple[int, int]) -> Dict[str, Dict[str, object]]:
     x, y = pos
     valid_movement = {'left': {'can_move': False, 'position': (), 'character': arr[x][y - 1] if y != 0 else None},
                       'right': {'can_move': False, 'position': (),
@@ -143,8 +144,7 @@ def traverse_map(map_arr: List[List[str]]) -> Tuple[str, str]:
 
         unvisited_directions = {k: v for (k, v) in directions.items() if v['position'] not in visited}
 
-        num_directions = sum(
-            [direction['can_move'] for direction in unvisited_directions.values() if direction['can_move']])
+        num_directions = sum([direction['can_move'] for direction in unvisited_directions.values() if direction['can_move']])
 
         if num_directions == 0:
             if len(directions) == 1 and opposite_direction[back] == direction:
@@ -175,7 +175,7 @@ def traverse_map(map_arr: List[List[str]]) -> Tuple[str, str]:
         elif num_directions > 1:
             if current_pos == '+':
                 raise ValueError('Fork in path!')
-            if current_pos == '@':
+            elif current_pos == '@':
                 raise ValueError('Multiple starting paths!')
             for direction, status in unvisited_directions.items():
                 if status['can_move'] and direction == last_direction:
