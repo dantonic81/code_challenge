@@ -2,201 +2,86 @@ import pytest
 
 from main import create_map_arr, traverse_map
 
-basic = """
-  @---A---+
-          |
-  x-B-+   C
-      |   |
-      +---+
-"""
 
-intersections = """
-  @
-  | +-C--+
-  A |    |
-  +---B--+
-    |      x
-    |      |
-    +---D--+
-"""
-
-letters_turns = """
-  @---A---+
-          |
-  x-B-+   |
-      |   |
-      +---C
-"""
-
-no_twice_collect = """
-     +-O-N-+
-     |     |
-     |   +-I-+
- @-G-O-+ | | |
-     | | +-+ E
-     +-+     S
-             |
-             x
-"""
-
-compact_space = """
- +-L-+
- |  +A-+
-@B+ ++ H
- ++    x
-"""
-
-ignore_after_end = """
-  @-A--+
-       |
-       +-B--x-C--D
-"""
-
-missing_start = """
-     -A---+
-          |
-  x-B-+   C
-      |   |
-      +---+
-"""
-
-missing_end = """
-   @--A---+
-          |
-    B-+   C
-      |   |
-      +---+
-"""
-
-multiple_starts1 = """
-   @--A-@-+
-          |
-  x-B-+   C
-      |   |
-      +---+
-"""
-
-multiple_starts2 = """
-   @--A---+
-          |
-          C
-          x
-      @-B-+
-"""
-
-multiple_starts3 = """
-   @--A--x
-
-  x-B-+
-      |
-      @
-"""
-
-fork_in_path = """
-        x-B
-          |
-   @--A---+
-          |
-     x+   C
-      |   |
-      +---+
-"""
-
-broken_path = """
-   @--A-+
-        |
-         
-        B-x
-"""
-
-multiple_starting_paths = """
-  x-B-@-A-x
-"""
-
-fake_turn = """
-  @-A-+-B-x
-"""
-
-
-def test_basic():
-    result_basic = traverse_map(create_map_arr(basic))
+def test_traverse_basic(basic_map):
+    result_basic = traverse_map(create_map_arr(basic_map))
     assert result_basic == ('ACB', '@---A---+|C|+---+|+-B-x')
 
 
-def test_intersections():
-    result_intersections = traverse_map((create_map_arr(intersections)))
+def test_traverse_intersections(intersections_map):
+    result_intersections = traverse_map((create_map_arr(intersections_map)))
     assert result_intersections == ('ABCD', '@|A+---B--+|+--C-+|-||+---D--+|x')
 
 
-def test_letters_turns():
-    result_letters_turns = traverse_map(create_map_arr(letters_turns))
+def test_traverse_letters_as_turns(letters_as_turns_map):
+    result_letters_turns = traverse_map(create_map_arr(letters_as_turns_map))
     assert result_letters_turns == ('ACB', '@---A---+|||C---+|+-B-x')
 
 
-def test_no_twice_collect():
-    result_no_twice_collect = traverse_map(create_map_arr(no_twice_collect))
+def test_traverse_no_collect_twice(no_collect_twice_map):
+    result_no_twice_collect = traverse_map(create_map_arr(no_collect_twice_map))
     assert result_no_twice_collect == ('GOONIES', '@-G-O-+|+-+|O||+-O-N-+|I|+-+|+-I-+|ES|x')
 
 
-def test_compact_space():
-    result_compact_space = traverse_map(create_map_arr(compact_space))
+def test_traverse_compact_space(compact_space_map):
+    result_compact_space = traverse_map(create_map_arr(compact_space_map))
     assert result_compact_space == ('BLAH', '@B+++B|+-L-+A+++A-+Hx')
 
 
-def test_ignore_after_end():
-    result_ignore_after_end = traverse_map(create_map_arr(ignore_after_end))
+def test_traverse_ignore_after_end(ignore_after_end_map):
+    result_ignore_after_end = traverse_map(create_map_arr(ignore_after_end_map))
     assert result_ignore_after_end == ('AB', '@-A--+|+-B--x')
 
 
-def test_missing_start_raise():
+def test_traverse_missing_start_raise(missing_start_map):
     with pytest.raises(ValueError) as exc_info:
-        traverse_map(create_map_arr(missing_start))
+        traverse_map(create_map_arr(missing_start_map))
     assert str(exc_info.value) == 'Missing start position "@" in map!'
 
 
-def test_missing_end_raise():
+def test_traverse_missing_end_raise(missing_end_map):
     with pytest.raises(ValueError) as exc_info:
-        traverse_map(create_map_arr(missing_end))
+        traverse_map(create_map_arr(missing_end_map))
     assert str(exc_info.value) == 'Missing end position "x" in map!'
 
 
-def test_multiple_starts1_raise():
+def test_traverse_multiple_starts1_raise(multiple_starts_1_map):
     with pytest.raises(ValueError) as exc_info:
-        traverse_map(create_map_arr(multiple_starts1))
+        traverse_map(create_map_arr(multiple_starts_1_map))
     assert str(exc_info.value) == 'Multiple start positions "@" in map!'
 
 
-def test_multiple_starts2_raise():
+def test_traverse_multiple_starts_2_raise(multiple_starts_2_map):
     with pytest.raises(ValueError) as exc_info:
-        traverse_map(create_map_arr(multiple_starts2))
+        traverse_map(create_map_arr(multiple_starts_2_map))
     assert str(exc_info.value) == 'Multiple start positions "@" in map!'
 
 
-def test_multiple_starts3_raise():
+def test_traverse_multiple_starts_3_raise(multiple_starts_3_map):
     with pytest.raises(ValueError) as exc_info:
-        traverse_map(create_map_arr(multiple_starts3))
+        traverse_map(create_map_arr(multiple_starts_3_map))
     assert str(exc_info.value) == 'Multiple start positions "@" in map!'
 
 
-def test_fork_in_path_raise():
+def test_traverse_fork_in_path_raise(fork_in_path_map):
     with pytest.raises(ValueError) as exc_info:
-        traverse_map(create_map_arr(fork_in_path))
+        traverse_map(create_map_arr(fork_in_path_map))
     assert str(exc_info.value) == 'Fork in path!'
 
 
-def test_broken_path_raise():
+def test_traverse_broken_path_raise(broken_path_map):
     with pytest.raises(ValueError) as exc_info:
-        traverse_map(create_map_arr(broken_path))
+        traverse_map(create_map_arr(broken_path_map))
     assert str(exc_info.value) == 'Broken path!'
 
 
-def test_multiple_starting_paths_raise():
+def test_traverse_multiple_starting_paths_raise(multiple_starting_paths_map):
     with pytest.raises(ValueError) as exc_info:
-        traverse_map(create_map_arr(multiple_starting_paths))
+        traverse_map(create_map_arr(multiple_starting_paths_map))
     assert str(exc_info.value) == 'Multiple starting paths!'
 
 
-def test_fake_turn_raise():
+def test_traverse_fake_turn_raise(fake_turn_map):
     with pytest.raises(ValueError) as exc_info:
-        traverse_map(create_map_arr(fake_turn))
+        traverse_map(create_map_arr(fake_turn_map))
     assert str(exc_info.value) == 'Fake turn!'
