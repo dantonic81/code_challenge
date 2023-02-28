@@ -1,6 +1,7 @@
 import pytest
 
-from main import create_map_arr, traverse_map
+from main import create_map_arr, traverse_map, BrokenPathError, FakeTurnError, ForkInPathError, \
+    MultipleStartingPathsError, InvalidPathError
 
 
 def test_traverse_basic(basic_map):
@@ -34,54 +35,54 @@ def test_traverse_ignore_after_end(ignore_after_end_map):
 
 
 def test_traverse_missing_start_raise(missing_start_map):
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(InvalidPathError) as exc_info:
         traverse_map(create_map_arr(missing_start_map))
     assert str(exc_info.value) == 'Missing start position "@" in map!'
 
 
 def test_traverse_missing_end_raise(missing_end_map):
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(InvalidPathError) as exc_info:
         traverse_map(create_map_arr(missing_end_map))
     assert str(exc_info.value) == 'Missing end position "x" in map!'
 
 
 def test_traverse_multiple_starts1_raise(multiple_starts_1_map):
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(InvalidPathError) as exc_info:
         traverse_map(create_map_arr(multiple_starts_1_map))
     assert str(exc_info.value) == 'Multiple start positions "@" in map!'
 
 
 def test_traverse_multiple_starts_2_raise(multiple_starts_2_map):
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(InvalidPathError) as exc_info:
         traverse_map(create_map_arr(multiple_starts_2_map))
     assert str(exc_info.value) == 'Multiple start positions "@" in map!'
 
 
 def test_traverse_multiple_starts_3_raise(multiple_starts_3_map):
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(InvalidPathError) as exc_info:
         traverse_map(create_map_arr(multiple_starts_3_map))
     assert str(exc_info.value) == 'Multiple start positions "@" in map!'
 
 
 def test_traverse_fork_in_path_raise(fork_in_path_map):
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(ForkInPathError) as exc_info:
         traverse_map(create_map_arr(fork_in_path_map))
     assert str(exc_info.value) == 'Fork in path!'
 
 
 def test_traverse_broken_path_raise(broken_path_map):
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(BrokenPathError) as exc_info:
         traverse_map(create_map_arr(broken_path_map))
     assert str(exc_info.value) == 'Broken path!'
 
 
 def test_traverse_multiple_starting_paths_raise(multiple_starting_paths_map):
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(MultipleStartingPathsError) as exc_info:
         traverse_map(create_map_arr(multiple_starting_paths_map))
     assert str(exc_info.value) == 'Multiple starting paths!'
 
 
 def test_traverse_fake_turn_raise(fake_turn_map):
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(FakeTurnError) as exc_info:
         traverse_map(create_map_arr(fake_turn_map))
     assert str(exc_info.value) == 'Fake turn!'

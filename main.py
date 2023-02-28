@@ -6,6 +6,26 @@ from typing import Dict, List, Tuple, Set
 UPPER_ALPHA = set(string.ascii_uppercase)
 
 
+class InvalidPathError(Exception):
+    pass
+
+
+class BrokenPathError(InvalidPathError):
+    pass
+
+
+class FakeTurnError(InvalidPathError):
+    pass
+
+
+class ForkInPathError(InvalidPathError):
+    pass
+
+
+class MultipleStartingPathsError(InvalidPathError):
+    pass
+
+
 def create_map_arr(map_str) -> List[List[str]]:
     """
     Converts a string representation of a map to a two-dimensional list of characters.
@@ -13,10 +33,10 @@ def create_map_arr(map_str) -> List[List[str]]:
     The input string should contain only the following characters:
     - uppercase letters ('A' to 'Z')
     - special characters ('x', '@', '-', '|', '+', '\n', ' ') representing the start, end, corners, empty spaces etc.
-    The function will raise a ValueError if the input string contains any other characters.
+    The function will raise an InvalidPathError if the input string contains any other characters.
 
     The input string should contain exactly one '@' character representing the starting position, and one or more 'x'
-    characters representing the ending position. The function will raise a ValueError if either of these characters is
+    characters representing the ending position. The function will raise an InvalidPathError if either of these characters is
     missing or if there are multiple '@' characters in the input string.
 
     The function will pad the rows of the two-dimensional list with spaces to make all rows have the same length, and
@@ -31,15 +51,15 @@ def create_map_arr(map_str) -> List[List[str]]:
     allowed_chars = UPPER_ALPHA.union({'x', '@', '-', '|', '+', '\n', ' '})
     invalid_chars = set(map_str) - allowed_chars
     if invalid_chars:
-        raise ValueError(f'Map contains invalid characters: {", ".join(invalid_chars)}')
+        raise InvalidPathError(f'Map contains invalid characters: {", ".join(invalid_chars)}')
 
     if '@' not in map_str:
-        raise ValueError('Missing start position "@" in map!')
+        raise InvalidPathError('Missing start position "@" in map!')
     elif map_str.count('@') > 1:
-        raise ValueError('Multiple start positions "@" in map!')
+        raise InvalidPathError('Multiple start positions "@" in map!')
 
     if 'x' not in map_str:
-        raise ValueError('Missing end position "x" in map!')
+        raise InvalidPathError('Missing end position "x" in map!')
 
     rows = map_str.splitlines()
     jagged_rows = [row for row in rows if row]
@@ -55,7 +75,7 @@ def _find_start(arr: List[List[str]]) -> Tuple[int, int]:
         for y, char in enumerate(row):
             if char == '@':
                 return x, y
-    raise ValueError('Start position not found!')
+    raise InvalidPathError('Start position not found!')
 
 
 def _move(arr: List[List[str]], pos: Tuple[int, int], direction: str) -> Tuple[int, int]:
@@ -148,7 +168,7 @@ def traverse_map(map_arr: List[List[str]]) -> Tuple[str, str]:
 
         if num_directions == 0:
             if len(directions) == 1 and opposite_direction[back] == direction:
-                raise ValueError('Broken path!')
+                raise BrokenPathError('Broken path!')
 
             # handling cases when only options have all been visited
             has_move = any(v['can_move'] for v in unvisited_directions.values())
@@ -170,13 +190,13 @@ def traverse_map(map_arr: List[List[str]]) -> Tuple[str, str]:
                     next_pos = _move(map_arr, pos, direction)
                     stack.append(next_pos)
                     if current_pos == '+' and direction == last_direction:
-                        raise ValueError('Fake turn!')
+                        raise FakeTurnError('Fake turn!')
                     last_direction = direction
         elif num_directions > 1:
             if current_pos == '+':
-                raise ValueError('Fork in path!')
+                raise ForkInPathError('Fork in path!')
             elif current_pos == '@':
-                raise ValueError('Multiple starting paths!')
+                raise MultipleStartingPathsError('Multiple starting paths!')
             for direction, status in unvisited_directions.items():
                 if status['can_move'] and direction == last_direction:
                     next_pos = _move(map_arr, pos, direction)
