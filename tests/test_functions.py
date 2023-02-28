@@ -151,31 +151,31 @@ def test_ignore_after_end():
 def test_missing_start_raise():
     with pytest.raises(ValueError) as exc_info:
         traverse_map(create_map_arr(missing_start))
-    assert str(exc_info.value) == 'Map has no start!'
+    assert str(exc_info.value) == 'Missing start position "@" in map!'
 
 
 def test_missing_end_raise():
     with pytest.raises(ValueError) as exc_info:
         traverse_map(create_map_arr(missing_end))
-    assert str(exc_info.value) == 'Map has no end!'
+    assert str(exc_info.value) == 'Missing end position "x" in map!'
 
 
 def test_multiple_starts1_raise():
     with pytest.raises(ValueError) as exc_info:
         traverse_map(create_map_arr(multiple_starts1))
-    assert str(exc_info.value) == 'Map has multiple starts!'
+    assert str(exc_info.value) == 'Multiple start positions "@" in map!'
 
 
 def test_multiple_starts2_raise():
     with pytest.raises(ValueError) as exc_info:
         traverse_map(create_map_arr(multiple_starts2))
-    assert str(exc_info.value) == 'Map has multiple starts!'
+    assert str(exc_info.value) == 'Multiple start positions "@" in map!'
 
 
 def test_multiple_starts3_raise():
     with pytest.raises(ValueError) as exc_info:
         traverse_map(create_map_arr(multiple_starts3))
-    assert str(exc_info.value) == 'Map has multiple starts!'
+    assert str(exc_info.value) == 'Multiple start positions "@" in map!'
 
 
 def test_fork_in_path_raise():

@@ -1,7 +1,8 @@
+import string
 from typing import List, Tuple, Set
 
 
-upper_alpha = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+UPPER_ALPHA = set(string.ascii_uppercase)
 
 
 def create_map_arr(map_str) -> List[List[str]]:
@@ -26,38 +27,25 @@ def create_map_arr(map_str) -> List[List[str]]:
     Returns:
     A two-dimensional list of characters representing the map
     """
-    allowed = {'x', '@', '-', '|', '+', '\n', ' '}
-
-    # check if map contains invalid characters
-    invalid_chars = set(map_str) - upper_alpha - allowed
+    allowed_chars = UPPER_ALPHA.union({'x', '@', '-', '|', '+', '\n', ' '})
+    invalid_chars = set(map_str) - allowed_chars
     if invalid_chars:
         raise ValueError(f'Map contains invalid characters: {", ".join(invalid_chars)}')
 
-    # check for missing start character
     if '@' not in map_str:
-        raise ValueError('Map has no start!')
+        raise ValueError('Missing start position "@" in map!')
+    elif map_str.count('@') > 1:
+        raise ValueError('Multiple start positions "@" in map!')
 
-    # check for multiple start characters
-    if map_str.count('@') > 1:
-        raise ValueError('Map has multiple starts!')
-
-    # check for missing end character
     if 'x' not in map_str:
-        raise ValueError('Map has no end!')
+        raise ValueError('Missing end position "x" in map!')
 
-    # Split the string into a list of strings, where each string represents a row in the map
-    map_list = map_str.split('\n')
+    rows = map_str.splitlines()
+    jagged_rows = [row for row in rows if row]
+    justified_rows = [row.ljust(max(map(len, jagged_rows)), ' ') for row in jagged_rows]
+    map_arr = [list(i) for i in justified_rows]
 
-    # Remove any empty strings from the list
-    map_list = list(filter(None, map_list))
-
-    # pad rows with spaces if jagged
-    map_list = [row.ljust(max(map(len, map_list)), ' ') for row in map_list]
-
-    # convert strings to lists
-    map_list = [list(i) for i in map_list]
-
-    return map_list
+    return map_arr
 
 
 # TRAVERSE MAP LOGIC
@@ -80,7 +68,7 @@ def _move(arr, pos, direction):
         next_pos = (x + 1, y)
 
     next_char = arr[next_pos[0]][next_pos[1]]
-    if next_char in {'-', '|', '+', 'x'} | upper_alpha:
+    if next_char in {'-', '|', '+', 'x'} | UPPER_ALPHA:
         return next_pos
     else:
         raise ValueError(f'Invalid move to position {next_pos}')
@@ -95,19 +83,19 @@ def _explore_directions(arr, pos):
                       'down': {'can_move': False, 'position': (),
                                'character': arr[x + 1][y] if x < len(arr) - 1 else None}}
 
-    if arr[x][y - 1] in {'-', 'x', '+'} | upper_alpha and y != 0:
+    if arr[x][y - 1] in {'-', 'x', '+'} | UPPER_ALPHA and y != 0:
         valid_movement['left']['can_move'] = True
         valid_movement['left']['position'] = (x, y - 1)
 
-    if y < len(arr[0]) - 1 and arr[x][y + 1] in {'-', 'x', '+'} | upper_alpha:
+    if y < len(arr[0]) - 1 and arr[x][y + 1] in {'-', 'x', '+'} | UPPER_ALPHA:
         valid_movement['right']['can_move'] = True
         valid_movement['right']['position'] = (x, y + 1)
 
-    if x != 0 and arr[x - 1][y] in {'|', 'x', '+', '-'} | upper_alpha:
+    if x != 0 and arr[x - 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
         valid_movement['up']['can_move'] = True
         valid_movement['up']['position'] = (x - 1, y)
 
-    if x < len(arr) - 1 and arr[x + 1][y] in {'|', 'x', '+', '-'} | upper_alpha:
+    if x < len(arr) - 1 and arr[x + 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
         valid_movement['down']['can_move'] = True
         valid_movement['down']['position'] = (x + 1, y)
 
@@ -146,7 +134,7 @@ def traverse_map(map_arr):
         if current_pos == 'x':
             return ''.join(letters), ''.join(path)
 
-        if current_pos in upper_alpha and pos not in locations_picked:
+        if current_pos in UPPER_ALPHA and pos not in locations_picked:
             letters.append(current_pos)
             locations_picked.append(pos)
         directions = _explore_directions(map_arr, pos)
@@ -194,7 +182,4 @@ def traverse_map(map_arr):
                     last_direction = direction
 
 
-
-
 # print(traverse_map(create_map_arr(intersections)))
-
