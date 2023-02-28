@@ -35,17 +35,12 @@ no_twice_collect = """
              x
 """
 
-
-# compact_space    -------------------------------------------------------------
 compact_space = """  
  +-L-+
  |  +A-+
 @B+ ++ H
  ++    x
 """
-# expected: BLAH                           actual: broken path   actual: @B+++
-# expected: @B+++B|+-L-+A+++A-+Hx
-# looks like waiting for intersections to be resolved
 
 ignore_after_end = """ 
   @-A--+
@@ -150,10 +145,8 @@ def create_map_arr(map_str):
     # Remove any empty strings from the list
     map_list = list(filter(None, map_list))
 
-    # Find the dimensions of the map
-    num_rows = len(map_list)
+    # Find the number of columns, number of rows is not needed for padding
     num_cols = max(len(row) for row in map_list)
-    # print(num_rows, num_cols)
 
     # pad rows with spaces if jagged
     for index, i in enumerate(map_list):
@@ -200,9 +193,9 @@ def traverse_map(map_arr):
     stack = [start_pos]
     last_direction = None
     locations_picked = []
-    # last_pos = None
     letters = []
     path = []
+    opposite_direction = {'left': 'right', 'right': 'left', 'up': 'down', 'down': 'up'}
 
     while stack:
         pos = stack.pop()
@@ -210,8 +203,8 @@ def traverse_map(map_arr):
             continue
         visited.add(pos)
         x, y = pos
-        # last_pos = current_pos
         current_pos = map_arr[x][y]
+        back = opposite_direction.get(last_direction)
         path.append(current_pos)
         if current_pos == 'x':
             return "".join(letters), "".join(path)
@@ -221,18 +214,29 @@ def traverse_map(map_arr):
             locations_picked.append(pos)
         directions = explore_directions(map_arr, pos)
 
-        if last_direction and directions[last_direction]['position'] in visited and directions[last_direction][
-            'can_move']:
-            visited.remove(directions[last_direction]['position'])
-            stack.append(directions[last_direction]['position'])
-            continue
-
         unvisited_directions = {k: v for (k, v) in directions.items() if v['position'] not in visited}
+
         num_directions = sum(
             [direction['can_move'] for direction in unvisited_directions.values() if direction['can_move']])
 
         if num_directions == 0:
-            raise ValueError('Broken path!')
+            if len(directions) == 1 and opposite_direction[back] == direction:
+                raise ValueError('Broken path!')
+
+            # handling cases when only options have all been visited
+            has_move = any(v['can_move'] for v in unvisited_directions.values())
+            if not has_move:
+                can_move = {k: v for (k, v) in directions.items() if v['can_move']}
+                all_visited = {k: v for (k, v) in can_move.items() if v['position'] in visited}
+                if all_visited and len(all_visited) == len(can_move):
+                    for direction in all_visited:
+                        dir_location_x, dir_location_y = all_visited[direction]['position']
+                        if map_arr[dir_location_x][dir_location_y] not in ['x', '@', '+']:
+                            visited.remove(all_visited[direction]['position'])
+                            stack.append(all_visited[direction]['position'])
+                            break
+                    continue
+
         elif num_directions == 1:
             for direction, status in unvisited_directions.items():
                 if status['can_move']:
@@ -257,22 +261,22 @@ def traverse_map(map_arr):
 
 def explore_directions(arr, pos):
     x, y = pos
-    valid_movement = {'left': {'can_move': False, 'position': ()},
-                      'right': {'can_move': False, 'position': ()},
-                      'up': {'can_move': False, 'position': ()},
-                      'down': {'can_move': False, 'position': ()}}
-    # left
+    valid_movement = {'left': {'can_move': False, 'position': (), 'character': arr[x][y - 1] if y != 0 else None},
+                      'right': {'can_move': False, 'position': (),
+                                'character': arr[x][y + 1] if y < len(arr[0]) - 1 else None},
+                      'up': {'can_move': False, 'position': (), 'character': arr[x - 1][y] if x != 0 else None},
+                      'down': {'can_move': False, 'position': (),
+                               'character': arr[x + 1][y] if x < len(arr) - 1 else None}}
+
     if arr[x][y - 1] in {'-', 'x', '+'} | upper_alpha and y != 0:
         valid_movement['left']['can_move'] = True
         valid_movement['left']['position'] = (x, y - 1)
 
-    # right
-    if y != len(arr[0]) - 1 and arr[x][y + 1] in {'-', 'x', '+'} | upper_alpha:
+    if y < len(arr[0]) - 1 and arr[x][y + 1] in {'-', 'x', '+'} | upper_alpha:
         valid_movement['right']['can_move'] = True
         valid_movement['right']['position'] = (x, y + 1)
 
-    # up
-    if x != 0 and arr[x - 1][y] in {'|', 'x', '+'} | upper_alpha:
+    if x != 0 and arr[x - 1][y] in {'|', 'x', '+', '-'} | upper_alpha:
         valid_movement['up']['can_move'] = True
         valid_movement['up']['position'] = (x - 1, y)
 
@@ -280,35 +284,12 @@ def explore_directions(arr, pos):
         valid_movement['down']['can_move'] = True
         valid_movement['down']['position'] = (x + 1, y)
 
+    valid_movement = {k: v for (k, v) in valid_movement.items() if v['can_move']}
+
     return valid_movement
 
 
-print(traverse_map(create_map_arr(no_twice_collect)))
+print(traverse_map(create_map_arr(intersections)))
 # print(traverse_map(create_map_arr(multiple_starting_paths)))
 # print(create_map_arr(broken_path))
 
-
-# ----valid maps
-
-# basic                   +
-# intersections           +
-# letters_turns           +
-# no_twice_collect
-# compact_space
-# ignore_after_end        +
-
-# ---- invalid maps
-
-# missing_start           +
-# missing_end             +
-# multiple_starts1        +
-# multiple_starts2        +
-# multiple_starts3        +
-# fork_in_path            +
-# broken_path             +
-# multiple_starting_paths +
-# fake_turn               +
-
-
-if __name__ == '__main__':
-    pass

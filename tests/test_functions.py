@@ -1,8 +1,7 @@
 import pytest
 
-from test3 import create_map_arr, traverse_map
+from main import create_map_arr, traverse_map
 
-# basic example  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 basic = """
   @---A---+
           |
@@ -11,7 +10,6 @@ basic = """
       +---+
 """
 
-# straight through intersections  ----------------------------------------------------------------
 intersections = """
   @
   | +-C--+
@@ -21,13 +19,7 @@ intersections = """
     |      |
     +---D--+
 """
-# expected ABCD  actual: abc
-# expected  @|A+---B--+|+--C-+|-||+---D--+|x actual: @|A+---B--+|+--C-+|
-# probably the toughest issue on which at least two other tasks depend
-# if its not an intersection, we should just continue movement
 
-
-# letters may be found on turns    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 letters_turns = """
   @---A---+
           |
@@ -36,7 +28,6 @@ letters_turns = """
       +---C
 """
 
-# no twice collect   ------------------------------------------------------------
 no_twice_collect = """
      +-O-N-+
      |     |
@@ -47,37 +38,20 @@ no_twice_collect = """
              |
              x
 """
-# expected  GOONIES    actual: GO
-# expected  @-G-O-+|+-+|O||+-O-N-+|I|+-+|+-I-+|ES|x   actual: @-G-O-+|+-+|
-# looks like waiting for intersections to be resolved
 
-
-# compact_space    -------------------------------------------------------------
 compact_space = """
  +-L-+
  |  +A-+
 @B+ ++ H
  ++    x
 """
-# expected: BLAH                           actual: broken path   actual: @B+++
-# expected: @B+++B|+-L-+A+++A-+Hx
-# looks like waiting for intersections to be resolved
 
-# ignore_after_end  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ignore_after_end = """
   @-A--+
        |
        +-B--x-C--D
 """
 
-# expected: AB                   actual: AB
-# expected: @-A--+|+-B--x        actual: @-A--+|+-B--x
-
-
-# ###################################### invalid maps ##############################################
-
-
-#  missing_start ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 missing_start = """
      -A---+
           |
@@ -86,7 +60,6 @@ missing_start = """
       +---+
 """
 
-# missing_end +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 missing_end = """
    @--A---+
           |
@@ -95,7 +68,6 @@ missing_end = """
       +---+
 """
 
-# multiple_starts1   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 multiple_starts1 = """
    @--A-@-+
           |
@@ -104,7 +76,6 @@ multiple_starts1 = """
       +---+
 """
 
-# multiple_starts2  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 multiple_starts2 = """
    @--A---+
           |
@@ -113,7 +84,6 @@ multiple_starts2 = """
       @-B-+
 """
 
-# multiple_starts3  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 multiple_starts3 = """
    @--A--x
 
@@ -122,7 +92,6 @@ multiple_starts3 = """
       @
 """
 
-# fork_in_path     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 fork_in_path = """
         x-B
           |
@@ -133,10 +102,6 @@ fork_in_path = """
       +---+
 """
 
-# actual: @--A---+
-
-
-# broken_path    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 broken_path = """
    @--A-+
         |
@@ -144,13 +109,10 @@ broken_path = """
         B-x
 """
 
-# multiple_starting_paths  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 multiple_starting_paths = """
   x-B-@-A-x
 """
-# actual:  @
 
-# fake turn   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 fake_turn = """
   @-A-+-B-x
 """
@@ -178,7 +140,7 @@ def test_no_twice_collect():
 
 def test_compact_space():
     result_compact_space = traverse_map(create_map_arr(compact_space))
-    assert result_compact_space == 1
+    assert result_compact_space == ('BLAH', '@B+++B|+-L-+A+++A-+Hx')
 
 
 def test_ignore_after_end():
@@ -238,19 +200,3 @@ def test_fake_turn_raise():
     with pytest.raises(ValueError) as exc_info:
         traverse_map(create_map_arr(fake_turn))
     assert str(exc_info.value) == 'Fake turn!'
-
-
-# broken_path             +
-
-# program
-# [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', '@', '-', '-', 'A', '-', '+', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'B', '-', 'x', ' ']]
-
-# pdb
-# [[' ', ' ', ' ', '@', '-', '-', 'A', '-', '+', ' ', ' '], [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|', ' ', ' '], [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'B', '-', 'x']]
-
-"""
-   @--A-+
-        |
-         
-        B-x
-"""
