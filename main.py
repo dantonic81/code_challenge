@@ -70,15 +70,15 @@ def create_map_arr(map_str) -> List[List[str]]:
 
 
 # TRAVERSE MAP LOGIC
-def _find_start(arr: List[List[str]]) -> Tuple[int, int]:
-    for x, row in enumerate(arr):
+def _find_start(map_arr: List[List[str]]) -> Tuple[int, int]:
+    for x, row in enumerate(map_arr):
         for y, char in enumerate(row):
             if char == '@':
                 return x, y
     raise InvalidPathError('Start position not found!')
 
 
-def _move(arr: List[List[str]], pos: Tuple[int, int], direction: str) -> Tuple[int, int]:
+def _move(map_arr: List[List[str]], pos: Tuple[int, int], direction: str) -> Tuple[int, int]:
     x, y = pos
     if direction == 'left':
         next_pos = (x, y - 1)
@@ -89,35 +89,35 @@ def _move(arr: List[List[str]], pos: Tuple[int, int], direction: str) -> Tuple[i
     elif direction == 'down':
         next_pos = (x + 1, y)
 
-    next_char = arr[next_pos[0]][next_pos[1]]
+    next_char = map_arr[next_pos[0]][next_pos[1]]
     if next_char in {'-', '|', '+', 'x'} | UPPER_ALPHA:
         return next_pos
     else:
         raise ValueError(f'Invalid move to position {next_pos}')
 
 
-def _explore_directions(arr: List[List[str]], pos: Tuple[int, int]) -> Dict[str, Dict[str, object]]:
+def _get_valid_moves(map_arr: List[List[str]], pos: Tuple[int, int]) -> Dict[str, Dict[str, object]]:
     x, y = pos
-    valid_movement = {'left': {'can_move': False, 'position': (), 'character': arr[x][y - 1] if y != 0 else None},
+    valid_movement = {'left': {'can_move': False, 'position': (), 'character': map_arr[x][y - 1] if y != 0 else None},
                       'right': {'can_move': False, 'position': (),
-                                'character': arr[x][y + 1] if y < len(arr[0]) - 1 else None},
-                      'up': {'can_move': False, 'position': (), 'character': arr[x - 1][y] if x != 0 else None},
+                                'character': map_arr[x][y + 1] if y < len(map_arr[0]) - 1 else None},
+                      'up': {'can_move': False, 'position': (), 'character': map_arr[x - 1][y] if x != 0 else None},
                       'down': {'can_move': False, 'position': (),
-                               'character': arr[x + 1][y] if x < len(arr) - 1 else None}}
+                               'character': map_arr[x + 1][y] if x < len(map_arr) - 1 else None}}
 
-    if arr[x][y - 1] in {'-', 'x', '+'} | UPPER_ALPHA and y != 0:
+    if map_arr[x][y - 1] in {'-', 'x', '+'} | UPPER_ALPHA and y != 0:
         valid_movement['left']['can_move'] = True
         valid_movement['left']['position'] = (x, y - 1)
 
-    if y < len(arr[0]) - 1 and arr[x][y + 1] in {'-', 'x', '+'} | UPPER_ALPHA:
+    if y < len(map_arr[0]) - 1 and map_arr[x][y + 1] in {'-', 'x', '+'} | UPPER_ALPHA:
         valid_movement['right']['can_move'] = True
         valid_movement['right']['position'] = (x, y + 1)
 
-    if x != 0 and arr[x - 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
+    if x != 0 and map_arr[x - 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
         valid_movement['up']['can_move'] = True
         valid_movement['up']['position'] = (x - 1, y)
 
-    if x < len(arr) - 1 and arr[x + 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
+    if x < len(map_arr) - 1 and map_arr[x + 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
         valid_movement['down']['can_move'] = True
         valid_movement['down']['position'] = (x + 1, y)
 
@@ -160,7 +160,7 @@ def traverse_map(map_arr: List[List[str]]) -> Tuple[str, str]:
         if current_pos in UPPER_ALPHA and pos not in locations_picked:
             letters.append(current_pos)
             locations_picked.add(pos)
-        directions = _explore_directions(map_arr, pos)
+        directions = _get_valid_moves(map_arr, pos)
 
         unvisited_directions = {k: v for (k, v) in directions.items() if v['position'] not in visited}
 
