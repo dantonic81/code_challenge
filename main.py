@@ -1,3 +1,4 @@
+import collections
 import string
 from typing import List, Tuple, Set
 
@@ -103,21 +104,22 @@ def _explore_directions(arr, pos):
 
     return valid_movement
 
-def traverse_map(map_arr):
+
+def traverse_map(map_arr: List[List[str]]) -> Tuple[str, str]:
     """
-    Traverse the map and return the collected letters, path, and visited locations.
+    Traverse the map and return the collected letters and path.
 
     Args:
         map_arr (list): A list of lists representing the map.
 
     Returns:
-        Tuple[str, List[str], Set[Tuple[int, int]]]: A tuple containing the collected letters, path, and visited locations.
+        Tuple[str, List[str]]: A tuple containing the collected letters and path.
     """
     start_pos = _find_start(map_arr)
     visited = set()
-    stack = [start_pos]
+    stack = collections.deque([start_pos])
     last_direction = None
-    locations_picked = []
+    locations_picked = set()
     letters = []
     path = []
     opposite_direction = {'left': 'right', 'right': 'left', 'up': 'down', 'down': 'up'}
@@ -136,7 +138,7 @@ def traverse_map(map_arr):
 
         if current_pos in UPPER_ALPHA and pos not in locations_picked:
             letters.append(current_pos)
-            locations_picked.append(pos)
+            locations_picked.add(pos)
         directions = _explore_directions(map_arr, pos)
 
         unvisited_directions = {k: v for (k, v) in directions.items() if v['position'] not in visited}
