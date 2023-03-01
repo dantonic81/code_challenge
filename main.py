@@ -1,7 +1,7 @@
 import string
 from typing import Dict, List, Tuple
-from utils.exceptions import BrokenPathError, FakeTurnError, ForkInPathError, MultipleStartingPathsError, InvalidPathError
-
+from utils.exceptions import BrokenPathError, FakeTurnError, ForkInPathError, MultipleStartingPathsError, \
+    InvalidMapError
 
 UPPER_ALPHA = set(string.ascii_uppercase)
 
@@ -13,10 +13,10 @@ def create_map_array(map_str) -> List[List[str]]:
     The input string should contain only the following characters:
     - uppercase letters ('A' to 'Z')
     - special characters ('x', '@', '-', '|', '+', '\n', ' ') representing the start, end, corners, empty spaces etc.
-    The function will raise an InvalidPathError if the input string contains any other characters.
+    The function will raise an InvalidMapError if the input string contains any other characters.
 
     The input string should contain exactly one '@' character representing the starting position, and one or more 'x'
-    characters representing the ending position. The function will raise an InvalidPathError if either of these characters is
+    characters representing the ending position. The function will raise an InvalidMapError if either of these characters is
     missing or if there are multiple '@' characters in the input string.
 
     The function will pad the rows of the two-dimensional list with spaces to make all rows have the same length, and
@@ -31,15 +31,15 @@ def create_map_array(map_str) -> List[List[str]]:
     allowed_chars = UPPER_ALPHA.union({'x', '@', '-', '|', '+', '\n', ' '})
     invalid_chars = set(map_str) - allowed_chars
     if invalid_chars:
-        raise InvalidPathError(f'Map contains invalid characters: {", ".join(invalid_chars)}')
+        raise InvalidMapError(f'Map contains invalid characters: {", ".join(invalid_chars)}')
 
     if '@' not in map_str:
-        raise InvalidPathError('Missing start position "@" in map!')
+        raise InvalidMapError('Missing start position "@" in map!')
     elif map_str.count('@') > 1:
-        raise InvalidPathError('Multiple start positions "@" in map!')
+        raise InvalidMapError('Multiple start positions "@" in map!')
 
     if 'x' not in map_str:
-        raise InvalidPathError('Missing end position "x" in map!')
+        raise InvalidMapError('Missing end position "x" in map!')
 
     rows = map_str.splitlines()
     jagged_rows = [row for row in rows if row]
@@ -55,7 +55,7 @@ def _find_start(map_array: List[List[str]]) -> Tuple[int, int]:
         for y, char in enumerate(row):
             if char == '@':
                 return x, y
-    raise InvalidPathError('Start position not found!')
+    raise InvalidMapError('Start position not found!')
 
 
 def _move(map_array: List[List[str]], pos: Tuple[int, int], direction: str) -> Tuple[int, int]:
@@ -109,6 +109,9 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
     Returns:
         Tuple[str, List[str]]: A tuple containing the collected letters and path.
     """
+    if not map_array or not all(len(row) == len(map_array[0]) for row in map_array):
+        raise InvalidMapError('Invalid map: not a rectangular grid of characters!')
+
     start_pos = _find_start(map_array)
     visited = set()
     stack = [start_pos]

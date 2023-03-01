@@ -1,18 +1,18 @@
-class InvalidPathError(Exception):
+class InvalidMapError(Exception):
     pass
 
 
-class BrokenPathError(InvalidPathError):
+class BrokenPathError(InvalidMapError):
     pass
 
 
-class FakeTurnError(InvalidPathError):
+class FakeTurnError(InvalidMapError):
     pass
 
 
-class ForkInPathError(InvalidPathError):
+class ForkInPathError(InvalidMapError):
     pass
 
 
-class MultipleStartingPathsError(InvalidPathError):
+class MultipleStartingPathsError(InvalidMapError):
     pass

@@ -1,7 +1,7 @@
 import pytest
 
 from main import create_map_array, traverse_map
-from utils.exceptions import BrokenPathError, FakeTurnError, ForkInPathError, MultipleStartingPathsError, InvalidPathError
+from utils.exceptions import BrokenPathError, FakeTurnError, ForkInPathError, MultipleStartingPathsError, InvalidMapError
 
 
 def test_traverse_basic(basic_map):
@@ -35,31 +35,31 @@ def test_traverse_ignore_after_end(ignore_after_end_map):
 
 
 def test_traverse_missing_start_raise(missing_start_map):
-    with pytest.raises(InvalidPathError) as exc_info:
+    with pytest.raises(InvalidMapError) as exc_info:
         traverse_map(create_map_array(missing_start_map))
     assert str(exc_info.value) == 'Missing start position "@" in map!'
 
 
 def test_traverse_missing_end_raise(missing_end_map):
-    with pytest.raises(InvalidPathError) as exc_info:
+    with pytest.raises(InvalidMapError) as exc_info:
         traverse_map(create_map_array(missing_end_map))
     assert str(exc_info.value) == 'Missing end position "x" in map!'
 
 
 def test_traverse_multiple_starts1_raise(multiple_starts_1_map):
-    with pytest.raises(InvalidPathError) as exc_info:
+    with pytest.raises(InvalidMapError) as exc_info:
         traverse_map(create_map_array(multiple_starts_1_map))
     assert str(exc_info.value) == 'Multiple start positions "@" in map!'
 
 
 def test_traverse_multiple_starts_2_raise(multiple_starts_2_map):
-    with pytest.raises(InvalidPathError) as exc_info:
+    with pytest.raises(InvalidMapError) as exc_info:
         traverse_map(create_map_array(multiple_starts_2_map))
     assert str(exc_info.value) == 'Multiple start positions "@" in map!'
 
 
 def test_traverse_multiple_starts_3_raise(multiple_starts_3_map):
-    with pytest.raises(InvalidPathError) as exc_info:
+    with pytest.raises(InvalidMapError) as exc_info:
         traverse_map(create_map_array(multiple_starts_3_map))
     assert str(exc_info.value) == 'Multiple start positions "@" in map!'
 
