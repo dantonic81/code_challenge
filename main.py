@@ -142,9 +142,7 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
 
         unvisited_directions = {k: v for (k, v) in directions.items() if v['position'] not in visited}
 
-        num_directions = sum([direction['can_move'] for direction in unvisited_directions.values() if direction['can_move']])
-
-        if num_directions == 0:
+        if len(unvisited_directions) == 0:
             if len(directions) == 1 and opposite_direction[back] == direction:
                 raise BrokenPathError('Broken path!')
 
@@ -162,21 +160,20 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
                             break
                     continue
 
-        elif num_directions == 1:
+        elif len(unvisited_directions) == 1:
             for direction, status in unvisited_directions.items():
-                if status['can_move']:
-                    next_pos = _move(map_array, position, direction)
-                    stack.append(next_pos)
-                    if current_character == '+' and direction == last_direction:
-                        raise FakeTurnError('Fake turn!')
-                    last_direction = direction
-        elif num_directions > 1:
+                next_pos = _move(map_array, position, direction)
+                stack.append(next_pos)
+                if current_character == '+' and direction == last_direction:
+                    raise FakeTurnError('Fake turn!')
+                last_direction = direction
+        elif len(unvisited_directions) > 1:
             if current_character == '+':
                 raise ForkInPathError('Fork in path!')
             elif current_character == '@':
                 raise MultipleStartingPathsError('Multiple starting paths!')
             for direction, status in unvisited_directions.items():
-                if status['can_move'] and direction == last_direction:
+                if direction == last_direction:
                     next_pos = _move(map_array, position, direction)
                     stack.append(next_pos)
                     last_direction = direction
