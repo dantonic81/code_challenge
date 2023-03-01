@@ -179,4 +179,21 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
                     last_direction = direction
 
 
-# print(traverse_map(create_map_array(intersections)))
+if __name__ == '__main__':
+    # Example map string
+    map_str = """
+      @---A---+
+              |
+      x-B-+   C
+          |   |
+          +---+
+    """
+
+    # Convert the string representation of the map to a two-dimensional list
+    map_array = create_map_array(map_str)
+
+    # Traverse the map and get the collected letters and path
+    letters, path = traverse_map(map_array)
+
+    print(f"Letters: {letters}")
+    print(f"Path: {path}")
