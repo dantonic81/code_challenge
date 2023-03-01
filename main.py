@@ -1,6 +1,5 @@
-import collections
 import string
-from typing import Dict, List, Tuple, Set
+from typing import Dict, List, Tuple
 
 
 UPPER_ALPHA = set(string.ascii_uppercase)
@@ -26,7 +25,7 @@ class MultipleStartingPathsError(InvalidPathError):
     pass
 
 
-def create_map_arr(map_str) -> List[List[str]]:
+def create_map_array(map_str) -> List[List[str]]:
     """
     Converts a string representation of a map to a two-dimensional list of characters.
 
@@ -64,81 +63,74 @@ def create_map_arr(map_str) -> List[List[str]]:
     rows = map_str.splitlines()
     jagged_rows = [row for row in rows if row]
     justified_rows = [row.ljust(max(map(len, jagged_rows)), ' ') for row in jagged_rows]
-    map_arr = [list(i) for i in justified_rows]
+    map_array = [list(i) for i in justified_rows]
 
-    return map_arr
+    return map_array
 
 
 # TRAVERSE MAP LOGIC
-def _find_start(map_arr: List[List[str]]) -> Tuple[int, int]:
-    for x, row in enumerate(map_arr):
+def _find_start(map_array: List[List[str]]) -> Tuple[int, int]:
+    for x, row in enumerate(map_array):
         for y, char in enumerate(row):
             if char == '@':
                 return x, y
     raise InvalidPathError('Start position not found!')
 
 
-def _move(map_arr: List[List[str]], pos: Tuple[int, int], direction: str) -> Tuple[int, int]:
+def _move(map_array: List[List[str]], pos: Tuple[int, int], direction: str) -> Tuple[int, int]:
     x, y = pos
-    if direction == 'left':
-        next_pos = (x, y - 1)
-    elif direction == 'right':
-        next_pos = (x, y + 1)
-    elif direction == 'up':
-        next_pos = (x - 1, y)
-    elif direction == 'down':
-        next_pos = (x + 1, y)
-
-    next_char = map_arr[next_pos[0]][next_pos[1]]
-    if next_char in {'-', '|', '+', 'x'} | UPPER_ALPHA:
-        return next_pos
-    else:
-        raise ValueError(f'Invalid move to position {next_pos}')
+    dx, dy = {
+        'up': (-1, 0),
+        'down': (1, 0),
+        'left': (0, -1),
+        'right': (0, 1)
+    }[direction]
+    return x + dx, y + dy
 
 
-def _get_valid_moves(map_arr: List[List[str]], pos: Tuple[int, int]) -> Dict[str, Dict[str, object]]:
+def _get_valid_moves(map_array: List[List[str]], pos: Tuple[int, int]) -> Dict[str, Dict[str, object]]:
     x, y = pos
-    valid_movement = {'left': {'can_move': False, 'position': (), 'character': map_arr[x][y - 1] if y != 0 else None},
+    moves = {'left': {'can_move': False, 'position': (), 'character': map_array[x][y - 1] if y != 0 else None},
                       'right': {'can_move': False, 'position': (),
-                                'character': map_arr[x][y + 1] if y < len(map_arr[0]) - 1 else None},
-                      'up': {'can_move': False, 'position': (), 'character': map_arr[x - 1][y] if x != 0 else None},
+                                'character': map_array[x][y + 1] if y < len(map_array[0]) - 1 else None},
+                      'up': {'can_move': False, 'position': (), 'character': map_array[x - 1][y] if x != 0 else None},
                       'down': {'can_move': False, 'position': (),
-                               'character': map_arr[x + 1][y] if x < len(map_arr) - 1 else None}}
+                               'character': map_array[x + 1][y] if x < len(map_array) - 1 else None}}
 
-    if map_arr[x][y - 1] in {'-', 'x', '+'} | UPPER_ALPHA and y != 0:
-        valid_movement['left']['can_move'] = True
-        valid_movement['left']['position'] = (x, y - 1)
+    if map_array[x][y - 1] in {'-', 'x', '+'} | UPPER_ALPHA and y != 0:
+        moves['left']['can_move'] = True
+        moves['left']['position'] = (x, y - 1)
 
-    if y < len(map_arr[0]) - 1 and map_arr[x][y + 1] in {'-', 'x', '+'} | UPPER_ALPHA:
-        valid_movement['right']['can_move'] = True
-        valid_movement['right']['position'] = (x, y + 1)
+    if y < len(map_array[0]) - 1 and map_array[x][y + 1] in {'-', 'x', '+'} | UPPER_ALPHA:
+        moves['right']['can_move'] = True
+        moves['right']['position'] = (x, y + 1)
 
-    if x != 0 and map_arr[x - 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
-        valid_movement['up']['can_move'] = True
-        valid_movement['up']['position'] = (x - 1, y)
+    if x != 0 and map_array[x - 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
+        moves['up']['can_move'] = True
+        moves['up']['position'] = (x - 1, y)
 
-    if x < len(map_arr) - 1 and map_arr[x + 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
-        valid_movement['down']['can_move'] = True
-        valid_movement['down']['position'] = (x + 1, y)
+    if x < len(map_array) - 1 and map_array[x + 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
+        moves['down']['can_move'] = True
+        moves['down']['position'] = (x + 1, y)
 
-    valid_movement = {k: v for (k, v) in valid_movement.items() if v['can_move']}
+    moves = {k: v for (k, v) in moves.items() if v['can_move']}
 
-    return valid_movement
+    return moves
 
 
-def traverse_map(map_arr: List[List[str]]) -> Tuple[str, str]:
+def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
     """
     Traverse the map and return the collected letters and path.
 
     Args:
-        map_arr (list): A list of lists representing the map.
+        map_array (list): A list of lists representing the map.
 
     Returns:
         Tuple[str, List[str]]: A tuple containing the collected letters and path.
     """
-    start_pos = _find_start(map_arr)
+    start_pos = _find_start(map_array)
     visited = set()
-    stack = collections.deque([start_pos])
+    stack = [start_pos]
     last_direction = None
     locations_picked = set()
     letters = []
@@ -151,16 +143,16 @@ def traverse_map(map_arr: List[List[str]]) -> Tuple[str, str]:
             continue
         visited.add(pos)
         x, y = pos
-        current_pos = map_arr[x][y]
+        current_position = map_array[x][y]
         back = opposite_direction.get(last_direction)
-        path.append(current_pos)
-        if current_pos == 'x':
+        path.append(current_position)
+        if current_position == 'x':
             return ''.join(letters), ''.join(path)
 
-        if current_pos in UPPER_ALPHA and pos not in locations_picked:
-            letters.append(current_pos)
+        if current_position in UPPER_ALPHA and pos not in locations_picked:
+            letters.append(current_position)
             locations_picked.add(pos)
-        directions = _get_valid_moves(map_arr, pos)
+        directions = _get_valid_moves(map_array, pos)
 
         unvisited_directions = {k: v for (k, v) in directions.items() if v['position'] not in visited}
 
@@ -178,7 +170,7 @@ def traverse_map(map_arr: List[List[str]]) -> Tuple[str, str]:
                 if all_visited and len(all_visited) == len(can_move):
                     for direction in all_visited:
                         dir_location_x, dir_location_y = all_visited[direction]['position']
-                        if map_arr[dir_location_x][dir_location_y] not in ['x', '@', '+']:
+                        if map_array[dir_location_x][dir_location_y] not in ['x', '@', '+']:
                             visited.remove(all_visited[direction]['position'])
                             stack.append(all_visited[direction]['position'])
                             break
@@ -187,21 +179,21 @@ def traverse_map(map_arr: List[List[str]]) -> Tuple[str, str]:
         elif num_directions == 1:
             for direction, status in unvisited_directions.items():
                 if status['can_move']:
-                    next_pos = _move(map_arr, pos, direction)
+                    next_pos = _move(map_array, pos, direction)
                     stack.append(next_pos)
-                    if current_pos == '+' and direction == last_direction:
+                    if current_position == '+' and direction == last_direction:
                         raise FakeTurnError('Fake turn!')
                     last_direction = direction
         elif num_directions > 1:
-            if current_pos == '+':
+            if current_position == '+':
                 raise ForkInPathError('Fork in path!')
-            elif current_pos == '@':
+            elif current_position == '@':
                 raise MultipleStartingPathsError('Multiple starting paths!')
             for direction, status in unvisited_directions.items():
                 if status['can_move'] and direction == last_direction:
-                    next_pos = _move(map_arr, pos, direction)
+                    next_pos = _move(map_array, pos, direction)
                     stack.append(next_pos)
                     last_direction = direction
 
 
-# print(traverse_map(create_map_arr(intersections)))
+# print(traverse_map(create_map_array(intersections)))
