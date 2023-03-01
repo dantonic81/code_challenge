@@ -72,11 +72,9 @@ def _move(map_array: List[List[str]], position: Tuple[int, int], direction: str)
 def _get_valid_moves(map_array: List[List[str]], position: Tuple[int, int]) -> Dict[str, Dict[str, object]]:
     x, y = position
     moves = {'left': {'can_move': False, 'position': (), 'character': map_array[x][y - 1] if y != 0 else None},
-                      'right': {'can_move': False, 'position': (),
-                                'character': map_array[x][y + 1] if y < len(map_array[0]) - 1 else None},
-                      'up': {'can_move': False, 'position': (), 'character': map_array[x - 1][y] if x != 0 else None},
-                      'down': {'can_move': False, 'position': (),
-                               'character': map_array[x + 1][y] if x < len(map_array) - 1 else None}}
+             'right': {'can_move': False, 'position': (), 'character': map_array[x][y + 1] if y < len(map_array[0]) - 1 else None},
+             'up': {'can_move': False, 'position': (), 'character': map_array[x - 1][y] if x != 0 else None},
+             'down': {'can_move': False, 'position': (), 'character': map_array[x + 1][y] if x < len(map_array) - 1 else None}}
 
     if map_array[x][y - 1] in {'-', 'x', '+'} | UPPER_ALPHA and y != 0:
         moves['left']['can_move'] = True
@@ -112,6 +110,7 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
     if not map_array or not all(len(row) == len(map_array[0]) for row in map_array):
         raise InvalidMapError('Invalid map: not a rectangular grid of characters!')
 
+    opposite_direction = {'left': 'right', 'right': 'left', 'up': 'down', 'down': 'up'}
     start_pos = _find_start(map_array)
     visited = set()
     stack = [start_pos]
@@ -119,24 +118,23 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
     locations_picked = set()
     letters = []
     path = []
-    opposite_direction = {'left': 'right', 'right': 'left', 'up': 'down', 'down': 'up'}
 
     while stack:
         position = stack.pop()
         if position in visited:
-            continue
+            break
         visited.add(position)
         x, y = position
-        current_character = map_array[x][y]
+        current_cell = map_array[x][y]
         back = opposite_direction.get(last_direction)
-        path.append(current_character)
+        path.append(current_cell)
 
-        if current_character in UPPER_ALPHA and position not in locations_picked:
-            letters.append(current_character)
+        if current_cell in UPPER_ALPHA and position not in locations_picked:
+            letters.append(current_cell)
             locations_picked.add(position)
 
-        if current_character == 'x':
-            return ''.join(letters), ''.join(path)
+        if current_cell == 'x':
+            return f'{"".join(letters)}', f'{"".join(path)}'
 
         directions = _get_valid_moves(map_array, position)
 
@@ -159,18 +157,19 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
                 continue
 
         elif len(unvisited_directions) == 1:
-            for direction, status in unvisited_directions.items():
+            for direction, _ in unvisited_directions.items():
                 next_pos = _move(map_array, position, direction)
                 stack.append(next_pos)
-                if current_character == '+' and direction == last_direction:
+                if current_cell == '+' and direction == last_direction:
                     raise FakeTurnError('Fake turn!')
                 last_direction = direction
+
         else:
-            if current_character == '+':
+            if current_cell == '+':
                 raise ForkInPathError('Fork in path!')
-            elif current_character == '@':
+            elif current_cell == '@':
                 raise MultipleStartingPathsError('Multiple starting paths!')
-            for direction, status in unvisited_directions.items():
+            for direction, _ in unvisited_directions.items():
                 if direction == last_direction:
                     next_pos = _move(map_array, position, direction)
                     stack.append(next_pos)
