@@ -46,16 +46,66 @@ def test_move_down(basic_map):
     assert _move(basic_map, position, direction) == expected_position
 
 
+def test_get_valid_moves_left():
+    map_array = [[' ', ' ', ' ', ' ', ' '],
+                 [' ', '-', '-', ' ', ' '],
+                 [' ', ' ', ' ', ' ', ' '],
+                 [' ', ' ', ' ', ' ', ' ']]
+    position = (1, 2)
+    expected_moves = {'left': {'can_move': True, 'position': (1, 1), 'character': '-'}}
+    assert _get_valid_moves(map_array, position) == expected_moves
+
+
+def test_get_valid_moves_right():
+    map_array = [[' ', ' ', ' ', ' ', ' '],
+                 [' ', ' ', '-', '-', ' '],
+                 [' ', ' ', ' ', ' ', ' '],
+                 [' ', ' ', ' ', ' ', ' ']]
+    position = (1, 2)
+    expected_moves = {'right': {'can_move': True, 'position': (1, 3), 'character': '-'}}
+    assert _get_valid_moves(map_array, position) == expected_moves
+
+
+def test_get_valid_moves_up():
+    map_array = [[' ', ' ', '+', ' ', ' '],
+                 [' ', ' ', '|', ' ', ' '],
+                 [' ', ' ', ' ', ' ', ' '],
+                 [' ', ' ', ' ', ' ', ' ']]
+    position = (1, 2)
+    expected_moves = {'up': {'can_move': True, 'position': (0, 2), 'character': '+'}}
+    assert _get_valid_moves(map_array, position) == expected_moves
+
+
+def test_get_valid_moves_down():
+    map_array = [[' ', ' ', ' ', ' ', ' '],
+                 [' ', ' ', '|', ' ', ' '],
+                 [' ', ' ', '|', ' ', ' '],
+                 [' ', ' ', ' ', ' ', ' ']]
+    position = (1, 2)
+    expected_moves = {'down': {'can_move': True, 'position': (2, 2), 'character': '|'}}
+    assert _get_valid_moves(map_array, position) == expected_moves
+
+
+def test_get_valid_moves_no_valid_moves():
+    map_array = [[' ', ' ', ' ', ' ', ' '],
+                 [' ', ' ', '-', ' ', ' '],
+                 [' ', ' ', ' ', ' ', ' '],
+                 [' ', ' ', ' ', ' ', ' ']]
+    position = (1, 2)
+    expected_moves = {}
+    assert _get_valid_moves(map_array, position) == expected_moves
+
+
+def test_get_valid_moves_edge_case():
+    map_array = [['A']]
+    position = (0, 0)
+    expected_moves = {}
+    assert _get_valid_moves(map_array, position) == expected_moves
+
+
 def test_move_invalid_direction_raise(basic_map):
     position = (1, 1)
     direction = 'invalid'
     with pytest.raises(InvalidDirectionError) as exc_info:
         _move(basic_map, position, direction)
     assert str(exc_info.value) == f"Direction '{direction}' not allowed!"
-
-
-# def test_move_off_map_raise(basic_map):
-#     position = (6, 1)
-#     with pytest.raises(InvalidMapError):
-#         map_array = create_map_array(basic_map)
-#         _get_valid_moves(map_array, position)
