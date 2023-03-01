@@ -1,28 +1,9 @@
 import string
 from typing import Dict, List, Tuple
+from utils.exceptions import BrokenPathError, FakeTurnError, ForkInPathError, MultipleStartingPathsError, InvalidPathError
 
 
 UPPER_ALPHA = set(string.ascii_uppercase)
-
-
-class InvalidPathError(Exception):
-    pass
-
-
-class BrokenPathError(InvalidPathError):
-    pass
-
-
-class FakeTurnError(InvalidPathError):
-    pass
-
-
-class ForkInPathError(InvalidPathError):
-    pass
-
-
-class MultipleStartingPathsError(InvalidPathError):
-    pass
 
 
 def create_map_array(map_str) -> List[List[str]]:

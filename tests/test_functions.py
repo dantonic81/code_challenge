@@ -1,7 +1,7 @@
 import pytest
 
-from main import create_map_array, traverse_map, BrokenPathError, FakeTurnError, ForkInPathError, \
-    MultipleStartingPathsError, InvalidPathError
+from main import create_map_array, traverse_map
+from utils.exceptions import BrokenPathError, FakeTurnError, ForkInPathError, MultipleStartingPathsError, InvalidPathError
 
 
 def test_traverse_basic(basic_map):
