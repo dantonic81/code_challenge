@@ -146,19 +146,17 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
             if len(directions) == 1 and opposite_direction[back] == direction:
                 raise BrokenPathError('Broken path!')
 
-            # handling cases when only options have all been visited
-            has_move = any(v['can_move'] for v in unvisited_directions.values())
-            if not has_move:
-                can_move = {k: v for (k, v) in directions.items() if v['can_move']}
-                all_visited = {k: v for (k, v) in can_move.items() if v['position'] in visited}
-                if all_visited and len(all_visited) == len(can_move):
-                    for direction in all_visited:
-                        dir_location_x, dir_location_y = all_visited[direction]['position']
-                        if map_array[dir_location_x][dir_location_y] not in ['x', '@', '+']:
-                            visited.remove(all_visited[direction]['position'])
-                            stack.append(all_visited[direction]['position'])
-                            break
-                    continue
+            # handling case when all valid moves have been visited
+            can_move = {k: v for (k, v) in directions.items() if v['can_move']}
+            all_visited = {k: v for (k, v) in can_move.items() if v['position'] in visited}
+            if all_visited and len(all_visited) == len(can_move):
+                for direction in all_visited:
+                    dir_location_x, dir_location_y = all_visited[direction]['position']
+                    if map_array[dir_location_x][dir_location_y] not in ['x', '@', '+']:
+                        visited.remove(all_visited[direction]['position'])
+                        stack.append(all_visited[direction]['position'])
+                        break
+                continue
 
         elif len(unvisited_directions) == 1:
             for direction, status in unvisited_directions.items():
@@ -167,7 +165,7 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
                 if current_character == '+' and direction == last_direction:
                     raise FakeTurnError('Fake turn!')
                 last_direction = direction
-        elif len(unvisited_directions) > 1:
+        else:
             if current_character == '+':
                 raise ForkInPathError('Fork in path!')
             elif current_character == '@':
