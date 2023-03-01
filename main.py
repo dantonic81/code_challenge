@@ -1,7 +1,7 @@
 import string
 from typing import Dict, List, Tuple
 from utils.exceptions import BrokenPathError, FakeTurnError, ForkInPathError, MultipleStartingPathsError, \
-    InvalidMapError
+    InvalidDirectionError, InvalidMapError
 
 UPPER_ALPHA = set(string.ascii_uppercase)
 
@@ -60,12 +60,15 @@ def _find_start(map_array: List[List[str]]) -> Tuple[int, int]:
 
 def _move(map_array: List[List[str]], position: Tuple[int, int], direction: str) -> Tuple[int, int]:
     x, y = position
-    dx, dy = {
-        'up': (-1, 0),
-        'down': (1, 0),
-        'left': (0, -1),
-        'right': (0, 1)
-    }[direction]
+    try:
+        dx, dy = {
+            'up': (-1, 0),
+            'down': (1, 0),
+            'left': (0, -1),
+            'right': (0, 1)
+        }[direction]
+    except KeyError as e:
+        raise InvalidDirectionError(f"Direction {e} not allowed!")
     return x + dx, y + dy
 
 

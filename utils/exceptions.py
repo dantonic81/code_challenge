@@ -1,3 +1,7 @@
+class InvalidDirectionError(Exception):
+    pass
+
+
 class InvalidMapError(Exception):
     pass
 
