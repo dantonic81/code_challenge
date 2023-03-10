@@ -74,22 +74,20 @@ def _move(map_array: List[List[str]], position: Tuple[int, int], direction: str)
 
 def _get_valid_moves(map_array: List[List[str]], position: Tuple[int, int]) -> Dict[str, Dict[str, object]]:
     x, y = position
-    moves = {'left': {'can_move': False, 'position': (x, y - 1), 'character': map_array[x][y - 1] if y != 0 else None},
-             'right': {'can_move': False, 'position': (x, y + 1), 'character': map_array[x][y + 1] if y < len(map_array[0]) - 1 else None},
-             'up': {'can_move': False, 'position': (x - 1, y), 'character': map_array[x - 1][y] if x != 0 else None},
-             'down': {'can_move': False, 'position': (x + 1, y), 'character': map_array[x + 1][y] if x < len(map_array) - 1 else None}}
+    left_col, right_col = y-1, y+1
+    up_row, down_row = x-1, x+1
 
-    if map_array[x][y - 1] in {'-', 'x', '+'} | UPPER_ALPHA and y != 0:
-        moves['left']['can_move'] = True
+    left_char = map_array[x][left_col] if y != 0 else None
+    right_char = map_array[x][right_col] if y < len(map_array[0]) - 1 else None
+    up_char = map_array[up_row][y] if x != 0 else None
+    down_char = map_array[down_row][y] if x < len(map_array) - 1 else None
 
-    if y < len(map_array[0]) - 1 and map_array[x][y + 1] in {'-', 'x', '+'} | UPPER_ALPHA:
-        moves['right']['can_move'] = True
-
-    if x != 0 and map_array[x - 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
-        moves['up']['can_move'] = True
-
-    if x < len(map_array) - 1 and map_array[x + 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
-        moves['down']['can_move'] = True
+    moves = {
+        'left': {'can_move': left_char in {'-', 'x', '+'} | UPPER_ALPHA, 'position': (x, left_col), 'character': left_char},
+        'right': {'can_move': right_char in {'-', 'x', '+'} | UPPER_ALPHA, 'position': (x, right_col), 'character': right_char},
+        'up': {'can_move': up_char in {'|', 'x', '+', '-'} | UPPER_ALPHA, 'position': (up_row, y), 'character': up_char},
+        'down': {'can_move': down_char in {'|', 'x', '+', '-'} | UPPER_ALPHA, 'position': (down_row, y), 'character': down_char}
+    }
 
     moves = {k: v for (k, v) in moves.items() if v['can_move']}
 
