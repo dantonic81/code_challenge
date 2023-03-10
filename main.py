@@ -109,6 +109,7 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
     if not map_array or not all(len(row) == len(map_array[0]) for row in map_array):
         raise InvalidMapError('Invalid map: not a rectangular grid of characters!')
 
+    unvisited_direction = None
     opposite_direction = {'left': 'right', 'right': 'left', 'up': 'down', 'down': 'up'}
     start_pos = _find_start(map_array)
     visited = set()
@@ -138,38 +139,38 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
         unvisited_directions = {k: v for (k, v) in directions.items() if v['position'] not in visited}
 
         if len(unvisited_directions) == 0:
-            if len(directions) == 1 and opposite_direction[back] == direction:
+            if len(directions) == 1 and opposite_direction[back] == unvisited_direction:
                 raise BrokenPathError('Broken path!')
 
             # handling case when all valid moves have been visited
             all_visited = {k: v for (k, v) in directions.items() if v['position'] in visited}
             if all_visited and len(all_visited) == len(directions):
-                for direction in all_visited:
-                    dir_location_x, dir_location_y = all_visited[direction]['position']
+                for visited_direction in all_visited:
+                    dir_location_x, dir_location_y = all_visited[visited_direction]['position']
                     if map_array[dir_location_x][dir_location_y] not in ['x', '@', '+']:
-                        visited.remove(all_visited[direction]['position'])
-                        stack.append(all_visited[direction]['position'])
+                        visited.remove(all_visited[visited_direction]['position'])
+                        stack.append(all_visited[visited_direction]['position'])
                         break
                 continue
 
         elif len(unvisited_directions) == 1:
-            for direction, _ in unvisited_directions.items():
-                next_pos = _move(map_array, position, direction)
+            for unvisited_direction, _ in unvisited_directions.items():
+                next_pos = _move(map_array, position, unvisited_direction)
                 stack.append(next_pos)
-                if current_cell == '+' and direction == last_direction:
+                if current_cell == '+' and unvisited_direction == last_direction:
                     raise FakeTurnError('Fake turn!')
-                last_direction = direction
+                last_direction = unvisited_direction
 
         else:
             if current_cell == '+':
                 raise ForkInPathError('Fork in path!')
             elif current_cell == '@':
                 raise MultipleStartingPathsError('Multiple starting paths!')
-            for direction, _ in unvisited_directions.items():
-                if direction == last_direction:
-                    next_pos = _move(map_array, position, direction)
+            for unvisited_direction, _ in unvisited_directions.items():
+                if unvisited_direction == last_direction:
+                    next_pos = _move(map_array, position, unvisited_direction)
                     stack.append(next_pos)
-                    last_direction = direction
+                    last_direction = unvisited_direction
 
 
 if __name__ == '__main__':
