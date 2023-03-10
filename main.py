@@ -74,26 +74,22 @@ def _move(map_array: List[List[str]], position: Tuple[int, int], direction: str)
 
 def _get_valid_moves(map_array: List[List[str]], position: Tuple[int, int]) -> Dict[str, Dict[str, object]]:
     x, y = position
-    moves = {'left': {'can_move': False, 'position': (), 'character': map_array[x][y - 1] if y != 0 else None},
-             'right': {'can_move': False, 'position': (), 'character': map_array[x][y + 1] if y < len(map_array[0]) - 1 else None},
-             'up': {'can_move': False, 'position': (), 'character': map_array[x - 1][y] if x != 0 else None},
-             'down': {'can_move': False, 'position': (), 'character': map_array[x + 1][y] if x < len(map_array) - 1 else None}}
+    moves = {'left': {'can_move': False, 'position': (x, y - 1), 'character': map_array[x][y - 1] if y != 0 else None},
+             'right': {'can_move': False, 'position': (x, y + 1), 'character': map_array[x][y + 1] if y < len(map_array[0]) - 1 else None},
+             'up': {'can_move': False, 'position': (x - 1, y), 'character': map_array[x - 1][y] if x != 0 else None},
+             'down': {'can_move': False, 'position': (x + 1, y), 'character': map_array[x + 1][y] if x < len(map_array) - 1 else None}}
 
     if map_array[x][y - 1] in {'-', 'x', '+'} | UPPER_ALPHA and y != 0:
         moves['left']['can_move'] = True
-        moves['left']['position'] = (x, y - 1)
 
     if y < len(map_array[0]) - 1 and map_array[x][y + 1] in {'-', 'x', '+'} | UPPER_ALPHA:
         moves['right']['can_move'] = True
-        moves['right']['position'] = (x, y + 1)
 
     if x != 0 and map_array[x - 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
         moves['up']['can_move'] = True
-        moves['up']['position'] = (x - 1, y)
 
     if x < len(map_array) - 1 and map_array[x + 1][y] in {'|', 'x', '+', '-'} | UPPER_ALPHA:
         moves['down']['can_move'] = True
-        moves['down']['position'] = (x + 1, y)
 
     moves = {k: v for (k, v) in moves.items() if v['can_move']}
 
