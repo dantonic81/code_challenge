@@ -124,8 +124,6 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
 
     while stack:
         position = stack.pop()
-        if position in visited:
-            break
         visited.add(position)
         x, y = position
         current_cell = map_array[x][y]
