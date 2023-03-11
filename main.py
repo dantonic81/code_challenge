@@ -115,7 +115,7 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
     visited = set()
     stack = [start_pos]
     last_direction = None
-    locations_picked = set()
+    visited_locations_with_letters = set()
     letters = []
     path = []
 
@@ -127,9 +127,9 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
         back = _opposite_direction(last_direction)
         path.append(current_cell)
 
-        if current_cell in UPPER_ALPHA and position not in locations_picked:
+        if current_cell in UPPER_ALPHA and position not in visited_locations_with_letters:
             letters.append(current_cell)
-            locations_picked.add(position)
+            visited_locations_with_letters.add(position)
 
         if current_cell == 'x':
             return f'{"".join(letters)}', f'{"".join(path)}'
