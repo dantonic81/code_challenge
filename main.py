@@ -151,12 +151,12 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
                 continue
 
         elif len(unvisited_moves) == 1:
-            for unvisited_direction, _ in unvisited_moves.items():
-                next_pos = _move(map_array, position, unvisited_direction)
-                stack.append(next_pos)
-                if current_cell == '+' and unvisited_direction == last_direction:
-                    raise FakeTurnError('Fake turn!')
-                last_direction = unvisited_direction
+            unvisited_direction = next(iter(unvisited_moves))
+            next_pos = _move(map_array, position, unvisited_direction)
+            stack.append(next_pos)
+            if current_cell == '+' and unvisited_direction == last_direction:
+                raise FakeTurnError('Fake turn!')
+            last_direction = unvisited_direction
 
         else:
             for unvisited_direction, _ in unvisited_moves.items():
