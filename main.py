@@ -142,10 +142,8 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
                 raise BrokenPathError('Broken path!')
 
             # handling case when all valid moves have been visited
-            all_visited = []
-            for move in valid_moves.values():
-                if move['position'] in visited and map_array[move['position'][0]][move['position'][1]] not in ['x', '@', '+']:
-                    all_visited.append(move)
+            all_visited = [move for move in valid_moves.values() if move['position'] in visited
+                           and map_array[move['position'][0]][move['position'][1]] not in ['x', '@', '+']]
 
             if all_visited:
                 visited.remove(all_visited[0]['position'])
