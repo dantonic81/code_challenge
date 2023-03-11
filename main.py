@@ -90,6 +90,10 @@ def _check_valid_map(map_array):
         raise InvalidMapError('Invalid map: not a rectangular grid of characters!')
 
 
+def _opposite_direction(direction):
+    return {'left': 'right', 'right': 'left', 'up': 'down', 'down': 'up'}.get(direction)
+
+
 def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
     """
     Traverse the map and return the collected letters and path.
@@ -103,7 +107,6 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
     _check_valid_map(map_array)
 
     unvisited_direction = None
-    opposite_direction = {'left': 'right', 'right': 'left', 'up': 'down', 'down': 'up'}
     start_pos = _find_start(map_array)
     visited = set()
     stack = [start_pos]
@@ -117,7 +120,7 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
         visited.add(position)
         x, y = position
         current_cell = map_array[x][y]
-        back = opposite_direction.get(last_direction)
+        back = _opposite_direction(last_direction)
         path.append(current_cell)
 
         if current_cell in UPPER_ALPHA and position not in locations_picked:
@@ -132,7 +135,7 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
         unvisited_directions = {k: v for (k, v) in directions.items() if v['position'] not in visited}
 
         if len(unvisited_directions) == 0:
-            if len(directions) == 1 and opposite_direction[back] == unvisited_direction:
+            if len(directions) == 1 and _opposite_direction(back) == unvisited_direction:
                 raise BrokenPathError('Broken path!')
 
             # handling case when all valid moves have been visited
