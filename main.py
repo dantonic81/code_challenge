@@ -161,15 +161,16 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
                 last_direction = unvisited_direction
 
         else:
-            if current_cell == '+':
-                raise ForkInPathError('Fork in path!')
-            elif current_cell == '@':
-                raise MultipleStartingPathsError('Multiple starting paths!')
             for unvisited_direction, _ in unvisited_moves.items():
                 if unvisited_direction == last_direction:
                     next_pos = _move(map_array, position, unvisited_direction)
                     stack.append(next_pos)
                     last_direction = unvisited_direction
+                else:
+                    if current_cell == '+':
+                        raise ForkInPathError('Fork in path!')
+                    elif current_cell == '@':
+                        raise MultipleStartingPathsError('Multiple starting paths!')
 
 
 if __name__ == '__main__':
