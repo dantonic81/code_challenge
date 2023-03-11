@@ -1,5 +1,9 @@
 # Code_challenge - Map Traverser
-This module provides a set of functions to traverse a rectangular map represented as a 2D list of characters. The map should contain only the following characters:
+This module provides a set of functions to traverse a rectangular map represented as a 2D list of characters. 
+I've chosen the depth-first search (DFS) algorithm because it uses less memory and is more appropriate for our use case where
+path finding is needed. For this purpose there's an interplay between stack and visited list in the traverse_map function that we must stick to unless we want to use a different algorithm e.g. breadth-first search (BFS). 
+
+The map should contain only the following characters:
 
 - uppercase letters ('A' to 'Z')
 - special characters ('x', '@', '-', '|', '+', '\n', ' ') representing the start, end, corners, empty spaces etc.
