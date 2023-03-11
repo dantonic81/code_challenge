@@ -10,15 +10,6 @@ def create_map_array(map_str) -> List[List[str]]:
     """
     Converts a string representation of a map to a two-dimensional list of characters.
 
-    The input string should contain only the following characters:
-    - uppercase letters ('A' to 'Z')
-    - special characters ('x', '@', '-', '|', '+', '\n', ' ') representing the start, end, corners, empty spaces etc.
-    The function will raise an InvalidMapError if the input string contains any other characters.
-
-    The input string should contain exactly one '@' character representing the starting position, and one or more 'x'
-    characters representing the ending position. The function will raise an InvalidMapError if either of these characters is
-    missing or if there are multiple '@' characters in the input string.
-
     The function will pad the rows of the two-dimensional list with spaces to make all rows have the same length, and
     return a rectangular map where each character corresponds to one cell in the grid.
 

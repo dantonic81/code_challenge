@@ -1,7 +1,7 @@
 import pytest
 
 from main import _get_valid_moves, _move, create_map_array, traverse_map
-from utils.exceptions import InvalidMapError, InvalidDirectionError
+from utils.exceptions import BrokenPathError, ForkInPathError, FakeTurnError, InvalidMapError, InvalidDirectionError, MultipleStartingPathsError
 
 
 def test_valid_map():
@@ -109,3 +109,72 @@ def test_move_invalid_direction_raise(basic_map):
     with pytest.raises(InvalidDirectionError) as exc_info:
         _move(basic_map, position, direction)
     assert str(exc_info.value) == f"Direction '{direction}' not allowed!"
+
+def test_create_map_array_with_empty_map_string():
+    map_string = ""
+    with pytest.raises(InvalidMapError):
+        create_map_array(map_string)
+
+
+def test_create_map_array_with_invalid_characters():
+    map_string = """
+        @-A-+
+             |
+            #x
+    """
+    with pytest.raises(InvalidMapError):
+        create_map_array(map_string)
+
+
+def test_create_map_array_with_missing_start():
+    map_string = """
+       -A-+
+           |
+      x-B--+   
+          |   
+          +---+
+    """
+    with pytest.raises(InvalidMapError):
+        create_map_array(map_string)
+
+
+def test_create_map_array_with_missing_end():
+    map_string = """
+       @-A-+
+           |
+        -B--   
+           |   
+           +---+
+    """
+    with pytest.raises(InvalidMapError):
+        create_map_array(map_string)
+
+
+def test_create_map_array_with_multiple_starts():
+    map_string = """
+       @--A-@-+
+                |
+      x-B-+   C
+          |   |
+          +---+
+    """
+    with pytest.raises(InvalidMapError):
+        create_map_array(map_string)
+
+
+def test_create_map_array_with_valid_map():
+    map_string = """
+@---A---+
+        |
+x-B-+   C
+    |   |
+    +---+
+"""
+    expected_array = [
+        ["@", "-", "-", "-", "A", "-", "-", "-", "+"],
+        [" ", " ", " ", " ", " ", " ", " ", " ", "|"],
+        ["x", "-", "B", "-", "+", " ", " ", " ", "C"],
+        [" ", " ", " ", " ", "|", " ", " ", " ", "|"],
+        [" ", " ", " ", " ", "+", "-", "-", "-", "+"]
+    ]
+    assert create_map_array(map_string) == expected_array
