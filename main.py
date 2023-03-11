@@ -85,6 +85,11 @@ def _get_valid_moves(map_array: List[List[str]], position: Tuple[int, int]) -> D
     return moves
 
 
+def _check_valid_map(map_array):
+    if not map_array or not all(len(row) == len(map_array[0]) for row in map_array):
+        raise InvalidMapError('Invalid map: not a rectangular grid of characters!')
+
+
 def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
     """
     Traverse the map and return the collected letters and path.
@@ -95,8 +100,7 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
     Returns:
         Tuple[str, List[str]]: A tuple containing the collected letters and path.
     """
-    if not map_array or not all(len(row) == len(map_array[0]) for row in map_array):
-        raise InvalidMapError('Invalid map: not a rectangular grid of characters!')
+    _check_valid_map(map_array)
 
     unvisited_direction = None
     opposite_direction = {'left': 'right', 'right': 'left', 'up': 'down', 'down': 'up'}
