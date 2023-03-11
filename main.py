@@ -106,7 +106,7 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
         map_array (list): A list of lists representing the map.
 
     Returns:
-        Tuple[str, List[str]]: A tuple containing the collected letters and path.
+        Tuple[str, str]: A tuple containing the collected letters and path.
     """
     _check_valid_map(map_array)
 
@@ -143,7 +143,7 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
 
             # handling case when all valid moves have been visited
             all_visited = {k: v for (k, v) in valid_moves.items() if v['position'] in visited}
-            if all_visited and len(all_visited) == len(valid_moves):
+            if all_visited:
                 for visited_direction in all_visited:
                     dir_location_x, dir_location_y = all_visited[visited_direction]['position']
                     if map_array[dir_location_x][dir_location_y] not in ['x', '@', '+']:
