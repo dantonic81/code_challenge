@@ -110,7 +110,6 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
     """
     _check_valid_map(map_array)
 
-    unvisited_direction = None
     start_pos = _find_start(map_array)
     visited = set()
     stack = [start_pos]
@@ -124,7 +123,6 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
         visited.add(position)
         x, y = position
         current_cell = map_array[x][y]
-        back = _opposite_direction(last_direction)
         path.append(current_cell)
 
         if current_cell in UPPER_ALPHA and position not in visited_locations_with_letters:
@@ -138,7 +136,7 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
         unvisited_moves = _get_unvisited_moves(valid_moves, visited)
 
         if len(unvisited_moves) == 0:
-            if len(valid_moves) == 1 and _opposite_direction(back) == unvisited_direction:
+            if len(valid_moves) == 1 and _opposite_direction(last_direction) in valid_moves:
                 raise BrokenPathError('Broken path!')
 
             # handling case when all valid moves have been visited
