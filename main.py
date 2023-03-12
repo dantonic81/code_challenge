@@ -135,7 +135,7 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
         valid_moves = _get_valid_moves(map_array, position)
         unvisited_moves = _get_unvisited_moves(valid_moves, visited)
 
-        if len(unvisited_moves) == 0:
+        if not unvisited_moves:
             if len(valid_moves) == 1 and _opposite_direction(last_direction) in valid_moves:
                 raise BrokenPathError('Broken path!')
 
