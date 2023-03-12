@@ -49,7 +49,7 @@ def _find_start(map_array: List[List[str]]) -> Tuple[int, int]:
     raise InvalidMapError('Start position not found!')
 
 
-def _move(map_array: List[List[str]], position: Tuple[int, int], direction: str) -> Tuple[int, int]:
+def _move(position: Tuple[int, int], direction: str) -> Tuple[int, int]:
     x, y = position
     try:
         dx, dy = {
@@ -90,26 +90,50 @@ def _check_valid_map(map_array):
         raise InvalidMapError('Invalid map: not a rectangular grid of characters!')
 
 
-def _opposite_direction(direction):
-    return {'left': 'right', 'right': 'left', 'up': 'down', 'down': 'up'}.get(direction)
-
-
 def _get_unvisited_moves(valid_moves, visited):
     return {k: v for (k, v) in valid_moves.items() if v['position'] not in visited}
 
 
-def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
-    """
-    Traverse the map and return the collected letters and path.
+def _handle_no_unvisited_moves(map_array, position, visited, stack, last_direction):
+    def _opposite_direction(direction):
+        return {'left': 'right', 'right': 'left', 'up': 'down', 'down': 'up'}.get(direction)
 
-    Args:
-        map_array (list): A list of lists representing the map.
+    if len(_get_valid_moves(map_array, position)) == 1 and _opposite_direction(last_direction) in _get_valid_moves(map_array, position):
+        raise BrokenPathError('Broken path!')
+    try:
+        all_visited = [move for move in _get_valid_moves(map_array, position).values() if move['position'] in visited
+                       and map_array[move['position'][0]][move['position'][1]] not in ['x', '@', '+']]
+        next_pos = all_visited[0]['position']
+        visited.remove(next_pos)
+        stack.append(next_pos)
+        return last_direction
+    except IndexError:
+        pass
 
-    Returns:
-        Tuple[str, str]: A tuple containing the collected letters and path.
-    """
-    _check_valid_map(map_array)
 
+def _handle_one_unvisited_move(position, unvisited_moves, stack, last_direction, current_cell):
+    unvisited_direction = next(iter(unvisited_moves))
+    next_pos = _move(position, unvisited_direction)
+    stack.append(next_pos)
+    if current_cell == '+' and unvisited_direction == last_direction:
+        raise FakeTurnError('Fake turn!')
+    return unvisited_direction
+
+
+def _handle_multiple_unvisited_moves(position, current_cell, unvisited_moves, last_direction, stack):
+    for unvisited_direction, _ in unvisited_moves.items():
+        if unvisited_direction == last_direction:
+            next_pos = _move(position, unvisited_direction)
+            stack.append(next_pos)
+            last_direction = unvisited_direction
+        else:
+            if current_cell == '+':
+                raise ForkInPathError('Fork in path!')
+            elif current_cell == '@':
+                raise MultipleStartingPathsError('Multiple starting paths!')
+
+
+def _traverse_map_loop(map_array):
     start_pos = _find_start(map_array)
     visited = set()
     stack = [start_pos]
@@ -130,42 +154,36 @@ def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
             visited_locations_with_letters.add(position)
 
         if current_cell == 'x':
-            return f'{"".join(letters)}', f'{"".join(path)}'
+            break
 
         valid_moves = _get_valid_moves(map_array, position)
         unvisited_moves = _get_unvisited_moves(valid_moves, visited)
 
         if not unvisited_moves:
-            if len(valid_moves) == 1 and _opposite_direction(last_direction) in valid_moves:
-                raise BrokenPathError('Broken path!')
-
-            # handling case when all valid moves have been visited
-            all_visited = [move for move in valid_moves.values() if move['position'] in visited
-                           and map_array[move['position'][0]][move['position'][1]] not in ['x', '@', '+']]
-            next_pos = all_visited[0]['position']
-            visited.remove(next_pos)
-            stack.append(next_pos)
-            continue
+            last_direction = _handle_no_unvisited_moves(map_array, position, visited, stack, last_direction)
 
         elif len(unvisited_moves) == 1:
-            unvisited_direction = next(iter(unvisited_moves))
-            next_pos = _move(map_array, position, unvisited_direction)
-            stack.append(next_pos)
-            if current_cell == '+' and unvisited_direction == last_direction:
-                raise FakeTurnError('Fake turn!')
-            last_direction = unvisited_direction
+            last_direction = _handle_one_unvisited_move(position, unvisited_moves, stack, last_direction, current_cell)
 
         else:
-            for unvisited_direction, _ in unvisited_moves.items():
-                if unvisited_direction == last_direction:
-                    next_pos = _move(map_array, position, unvisited_direction)
-                    stack.append(next_pos)
-                    last_direction = unvisited_direction
-                else:
-                    if current_cell == '+':
-                        raise ForkInPathError('Fork in path!')
-                    elif current_cell == '@':
-                        raise MultipleStartingPathsError('Multiple starting paths!')
+            last_direction = _handle_multiple_unvisited_moves(position, current_cell, unvisited_moves, last_direction, stack)
+
+    return letters, path
+
+
+def traverse_map(map_array: List[List[str]]) -> Tuple[str, str]:
+    """
+    Traverse the map and return the collected letters and path.
+
+    Args:
+        map_array (list): A list of lists representing the map.
+
+    Returns:
+        Tuple[str, str]: A tuple containing the collected letters and path.
+    """
+    _check_valid_map(map_array)
+    letters, path = _traverse_map_loop(map_array)
+    return f'{"".join(letters)}', f'{"".join(path)}'
 
 
 if __name__ == '__main__':

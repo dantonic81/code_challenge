@@ -1,7 +1,7 @@
 import pytest
 
 from main import _get_valid_moves, _move, create_map_array, traverse_map
-from utils.exceptions import BrokenPathError, ForkInPathError, FakeTurnError, InvalidMapError, InvalidDirectionError, MultipleStartingPathsError
+from utils.exceptions import InvalidMapError, InvalidDirectionError
 
 
 def test_valid_map():
@@ -22,28 +22,28 @@ def test_move_left(basic_map):
     position = (1, 1)
     direction = 'left'
     expected_position = (1, 0)
-    assert _move(basic_map, position, direction) == expected_position
+    assert _move(position, direction) == expected_position
 
 
 def test_move_right(basic_map):
     position = (1, 1)
     direction = 'right'
     expected_position = (1, 2)
-    assert _move(basic_map, position, direction) == expected_position
+    assert _move(position, direction) == expected_position
 
 
 def test_move_up(basic_map):
     position = (1, 1)
     direction = 'up'
     expected_position = (0, 1)
-    assert _move(basic_map, position, direction) == expected_position
+    assert _move(position, direction) == expected_position
 
 
 def test_move_down(basic_map):
     position = (1, 1)
     direction = 'down'
     expected_position = (2, 1)
-    assert _move(basic_map, position, direction) == expected_position
+    assert _move(position, direction) == expected_position
 
 
 def test_get_valid_moves_left():
@@ -107,7 +107,7 @@ def test_move_invalid_direction_raise(basic_map):
     position = (1, 1)
     direction = 'invalid'
     with pytest.raises(InvalidDirectionError) as exc_info:
-        _move(basic_map, position, direction)
+        _move(position, direction)
     assert str(exc_info.value) == f"Direction '{direction}' not allowed!"
 
 def test_create_map_array_with_empty_map_string():
